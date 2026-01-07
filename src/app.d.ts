@@ -1,22 +1,20 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
-type D1PreparedStatement = {
-	bind(...values: unknown[]): D1PreparedStatement;
-	first<T = unknown>(): Promise<T | null>;
-	all<T = unknown>(): Promise<{ results: T[] }>;
-	run(): Promise<{ success: boolean; error?: string }>;
-};
 
-type D1Database = {
-	prepare(query: string): D1PreparedStatement;
+import type { D1Database } from '@cloudflare/workers-types';
+
+type Env = {
+	DB: D1Database;
 };
 
 declare global {
 	namespace App {
+		// interface Error {}
+		// interface Locals {}
+		// interface PageData {}
+		// interface PageState {}
 		interface Platform {
-			env: {
-				DB: D1Database;
-			};
+			env: Env;
 		}
 	}
 }
