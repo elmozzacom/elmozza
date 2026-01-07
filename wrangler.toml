@@ -10,4 +10,4 @@ directory = "./static"
 binding = "DB"
 database_name = "elmozza-db"
 # Replace with your Cloudflare D1 database ID
-database_id = "YOUR_D1_DATABASE_ID"
+database_id = "75491b81-a886-41cf-80e7-66156befcd4e"
