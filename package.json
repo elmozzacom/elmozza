@@ -11,8 +11,10 @@
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "deploy": "npm run build && wrangler pages deploy .svelte-kit/cloudflare",
-        "d1:dev": "wrangler d1 execute elmozza-db --local --file=./schema.sql",
-        "d1:push": "wrangler d1 execute elmozza-db --remote --file=./schema.sql"
+        "d1:local": "wrangler d1 execute elmozza-db --local --file=./schema.sql",
+        "d1:remote": "wrangler d1 execute elmozza-db --remote --file=./schema.sql",
+        "d1:dev": "npm run d1:local",
+        "d1:push": "npm run d1:remote"
     },
     "devDependencies": {
         "@cloudflare/workers-types": "^4.20260103.0",
@@ -24,6 +26,6 @@
         "svelte-check": "^4.3.4",
         "typescript": "^5.9.3",
         "vite": "^7.2.6",
-        "wrangler": "^3.101.0"
+        "wrangler": "^4.54.0"
     }
 }
