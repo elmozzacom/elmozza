@@ -107,7 +107,7 @@
 </script>
 
 <svelte:head>
-	<title>English Sprint Quiz</title>
+	<title>elmozza english course</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 	<link
@@ -119,8 +119,8 @@
 <main class="page">
 	<header class="topbar">
 		<div class="brand">
-			<span class="brand-mark">LinguaLeap</span>
-			<span class="brand-sub">English quest</span>
+			<span class="brand-mark">elmozza</span>
+			<span class="brand-sub">english course</span>
 		</div>
 		<div class="progress-wrap" aria-label="Lesson progress">
 			<div class="progress-track">

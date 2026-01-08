@@ -1,3 +1,4 @@
+import { dev } from '$app/environment';
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -47,6 +48,9 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 
 	const db = platform?.env?.DB;
 	if (!db) {
+		if (dev) {
+			return { lessonId, questions: [] };
+		}
 		throw error(500, 'Database binding (DB) is missing on platform.env');
 	}
 
@@ -84,6 +88,9 @@ export const actions: Actions = {
 	complete: async ({ request, platform }) => {
 		const db = platform?.env?.DB;
 		if (!db) {
+			if (dev) {
+				return fail(503, { message: 'Database unavailable in dev without platform proxy' });
+			}
 			throw error(500, 'Database binding (DB) is missing on platform.env');
 		}
 
