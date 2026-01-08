@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { onDestroy } from 'svelte';
+	import { speak, stop, type SpeakOptions } from '$lib/utils/audio';
+
 	type Step = {
 		label: string;
 		prompt: string;
@@ -30,6 +33,12 @@
 
 	const pointsForCorrect = 20;
 	const pointsForWrong = -5;
+	const audioConfig: SpeakOptions = {
+		lang: 'en-US',
+		rate: 1,
+		pitch: 1
+	};
+	const audioEnabledThemeIds = new Set(['pronunciation', 'listening']);
 
 	const themes: Theme[] = [
 		{
@@ -390,6 +399,11 @@
 	const formatPoints = (value: number | null) =>
 		value === null ? `+${pointsForCorrect}` : formatSigned(value);
 	const themeMaxPoints = (theme: Theme) => theme.steps.length * pointsForCorrect;
+	const getSpeakText = (step: Step | undefined) => {
+		if (!step) return '';
+		const match = step.prompt.match(/'([^']+)'/);
+		return match?.[1] ?? step.prompt;
+	};
 
 	$: filteredThemes = getThemesForProfession(activeProfession);
 	$: recommendedThemeNames = filteredThemes.length
@@ -406,6 +420,9 @@
 	$: wrongCount = Math.max(0, answeredCount - correctCount);
 	$: remainingSteps = Math.max(0, totalSteps - answeredCount);
 	$: isPerfect = view === 'complete' && score === maxPoints;
+	$: showAudioButton = view === 'quiz' && audioEnabledThemeIds.has(activeTheme.id);
+
+	let lastAudioKey = '';
 
 	function resetSession() {
 		currentIndex = 0;
@@ -416,6 +433,31 @@
 		lastDelta = null;
 		pointsHistory = new Array(activeTheme.steps.length).fill(null);
 	}
+
+	function playAudio() {
+		if (!current) return;
+		speak(getSpeakText(current), audioConfig);
+	}
+
+	$: {
+		if (view !== 'quiz') {
+			if (lastAudioKey) {
+				stop();
+				lastAudioKey = '';
+			}
+		} else {
+			const stepKey = `${activeTheme.id}-${currentIndex}`;
+			if (stepKey !== lastAudioKey) {
+				stop();
+				lastAudioKey = stepKey;
+				if (activeTheme.id === 'listening') {
+					speak(getSpeakText(current), audioConfig);
+				}
+			}
+		}
+	}
+
+	onDestroy(() => stop());
 
 	function selectTheme(theme: Theme) {
 		activeTheme = theme;
@@ -643,7 +685,29 @@
 				</div>
 
 				<div class="prompt">
-					<p>{current.prompt}</p>
+					<p class="prompt-text">{current.prompt}</p>
+					{#if showAudioButton}
+						<button
+							class="audio-btn"
+							type="button"
+							on:click={playAudio}
+							aria-label="Putar audio"
+						>
+							<svg viewBox="0 0 24 24" aria-hidden="true" class="audio-icon">
+								<path
+									d="M4 9.5v5a.5.5 0 0 0 .5.5H8l6 4V5l-6 4H4.5a.5.5 0 0 0-.5.5z"
+									fill="currentColor"
+								/>
+								<path
+									d="M16.5 8.5a5 5 0 0 1 0 7M18.75 6.25a8 8 0 0 1 0 11.5"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									stroke-linecap="round"
+								/>
+							</svg>
+						</button>
+					{/if}
 				</div>
 
 				<div class="options" role="radiogroup" aria-label="Pilihan jawaban">
@@ -1203,6 +1267,39 @@
 		padding: 1rem 1.2rem;
 		font-size: 1.1rem;
 		line-height: 1.5;
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		justify-content: space-between;
+	}
+
+	.prompt-text {
+		margin: 0;
+		flex: 1;
+	}
+
+	.audio-btn {
+		width: 44px;
+		height: 44px;
+		border-radius: 12px;
+		background: #ffffff;
+		border: 1px solid rgba(15, 23, 42, 0.12);
+		display: grid;
+		place-items: center;
+		cursor: pointer;
+		transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+	}
+
+	.audio-btn:hover {
+		transform: translateY(-2px);
+		border-color: var(--accent);
+		box-shadow: 0 12px 18px rgba(20, 30, 50, 0.15);
+	}
+
+	.audio-icon {
+		width: 22px;
+		height: 22px;
+		color: var(--accent-dark);
 	}
 
 	.options {
