@@ -23,10 +23,11 @@ const pickVoice = (options: SpeakOptions): SpeechSynthesisVoice | null => {
 		const named = voices.find((voice) => voice.name === options.voiceName);
 		if (named) return named;
 	}
-	if (options.lang) {
-		const exact = voices.find((voice) => voice.lang === options.lang);
+	const language = options.lang;
+	if (language) {
+		const exact = voices.find((voice) => voice.lang === language);
 		if (exact) return exact;
-		const prefix = voices.find((voice) => voice.lang.startsWith(options.lang.split('-')[0]));
+		const prefix = voices.find((voice) => voice.lang.startsWith(language.split('-')[0]));
 		if (prefix) return prefix;
 	}
 	return null;

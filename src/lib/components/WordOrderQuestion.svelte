@@ -20,12 +20,12 @@
 		checkLabel?: string;
 	}>();
 
-	let pool = [...words];
-	let result: string[] = [];
-	let feedback: Feedback = null;
-	let previousWordsKey = words.join('|');
+	let pool = $state<string[]>([]);
+	let result = $state<string[]>([]);
+	let feedback = $state<Feedback>(null);
+	let previousWordsKey = $state('');
 
-	$: {
+	$effect(() => {
 		const currentKey = words.join('|');
 		if (currentKey !== previousWordsKey) {
 			pool = [...words];
@@ -33,7 +33,7 @@
 			feedback = null;
 			previousWordsKey = currentKey;
 		}
-	}
+	});
 
 	const moveToResult = (word: string, index: number) => {
 		pool = pool.filter((_, i) => i !== index);
@@ -94,7 +94,7 @@
 						<button
 							type="button"
 							class="select-none rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-emerald-50 shadow-md transition hover:brightness-105 border-b-4 border-emerald-700 active:translate-y-[1px] active:border-b-0"
-							on:click={() => moveBack(index)}
+							onclick={() => moveBack(index)}
 						>
 							{word}
 						</button>
@@ -114,7 +114,7 @@
 					<button
 						type="button"
 						class="select-none rounded-xl bg-white px-3 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:-translate-y-[1px] hover:shadow-lg border-b-4 border-slate-200 active:translate-y-[1px] active:border-b-0"
-						on:click={() => moveToResult(word, index)}
+						onclick={() => moveToResult(word, index)}
 					>
 						{word}
 					</button>
@@ -127,7 +127,7 @@
 		<button
 			type="button"
 			class="rounded-xl bg-amber-400 px-4 py-2 text-sm font-extrabold text-slate-900 shadow-md transition hover:brightness-105 border-b-4 border-amber-500 active:translate-y-[1px] active:border-b-0 disabled:cursor-not-allowed disabled:opacity-70"
-			on:click={checkAnswer}
+			onclick={checkAnswer}
 			disabled={correctOrder.length === 0}
 		>
 			{checkLabel}
