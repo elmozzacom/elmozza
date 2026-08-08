@@ -21,7 +21,10 @@ const config = {
 
 	kit: {
 		// Cloudflare Pages adapter to generate .svelte-kit/cloudflare/_worker.js
-		adapter: adapterWithOptionalPlatformProxy
+		adapter: adapterWithOptionalPlatformProxy,
+		// Pages serves nested routes such as /daily-coach. Root-relative assets
+		// prevent the browser requesting /daily-coach/_app/... and losing hydration.
+		paths: { relative: false }
 	}
 };
 
