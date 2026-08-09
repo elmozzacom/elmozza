@@ -22,6 +22,10 @@ export const actions: Actions = {
 		const day = Number(form.get('day'));
 		const lesson = dailyCoachLessons.find((item) => item.day === day);
 		if (!lesson) return fail(400, { error: 'Lesson tidak valid.' });
+		const answerValue = form.get('answer');
+		if (answerValue === null || answerValue === '') return fail(400, { error: 'Jawaban wajib dipilih.' });
+		const answer = Number(answerValue);
+		if (!Number.isInteger(answer) || answer !== lesson.question.answer) return fail(400, { error: 'Jawaban belum tepat.' });
 
 		const insert = locals.db.prepare(
 			`INSERT INTO lesson_progress (user_id, lesson_code, status, score, xp_awarded, started_at, completed_at, updated_at)

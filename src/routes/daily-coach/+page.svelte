@@ -21,7 +21,7 @@
 		if (selectedAnswer === null) return;
 		showResult = true;
 		if (correct && !completedDays.includes(activeDay)) {
-			const body = new URLSearchParams({ day: String(activeDay) });
+			const body = new URLSearchParams({ day: String(activeDay), answer: String(selectedAnswer) });
 			const response = await fetch('?/complete', { method: 'POST', body });
 			if (response.ok) completedDays = [...completedDays, activeDay];
 		}
