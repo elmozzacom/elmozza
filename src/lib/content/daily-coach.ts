@@ -58,3 +58,15 @@ export const dailyCoachLessons: DailyCoachLesson[] = [
 ];
 
 export const getDailyCoachLesson = (day: number) => dailyCoachLessons.find((lesson) => lesson.day === day);
+
+export function verifyDailyCoachAnswer(dayValue: FormDataEntryValue | null, answerValue: FormDataEntryValue | null) {
+	const day = Number(dayValue);
+	const lesson = getDailyCoachLesson(day);
+	if (!lesson) return { error: 'Lesson tidak valid.' } as const;
+	if (answerValue === null || answerValue === '') return { error: 'Jawaban wajib dipilih.' } as const;
+	const answer = Number(answerValue);
+	if (!Number.isInteger(answer) || answer !== lesson.question.answer) {
+		return { error: 'Jawaban belum tepat.' } as const;
+	}
+	return { day, lesson } as const;
+}
