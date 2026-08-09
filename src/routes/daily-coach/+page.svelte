@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { dailyCoachLessons, type DailyCoachLesson } from '$lib/content/daily-coach';
 
+	export let data: { completedDays: number[] };
 	let activeDay = 1;
 	let selectedAnswer: number | null = null;
 	let showResult = false;
-	let completedDays: number[] = [];
+	let completedDays: number[] = data.completedDays;
 
 	$: lesson = dailyCoachLessons.find((item) => item.day === activeDay) as DailyCoachLesson;
 	$: progress = Math.round((completedDays.length / dailyCoachLessons.length) * 100);
@@ -16,10 +17,14 @@
 		showResult = false;
 	}
 
-	function checkAnswer() {
+	async function checkAnswer() {
 		if (selectedAnswer === null) return;
 		showResult = true;
-		if (correct && !completedDays.includes(activeDay)) completedDays = [...completedDays, activeDay];
+		if (correct && !completedDays.includes(activeDay)) {
+			const body = new URLSearchParams({ day: String(activeDay) });
+			const response = await fetch('?/complete', { method: 'POST', body });
+			if (response.ok) completedDays = [...completedDays, activeDay];
+		}
 	}
 
 	function nextDay() {
@@ -108,7 +113,7 @@
 		</article>
 	</section>
 
-	<section id="tentang" class="notice"><b>Status preview internal.</b> Progress pada versi ini hanya tersimpan selama halaman terbuka. Login, database progress, panel admin, dan publikasi konten akan ditambahkan pada tahap berikutnya.</section>
+	<section id="tentang" class="notice"><b>Progress tersimpan.</b> Setiap lesson yang selesai tercatat pada akun Anda; XP hanya diberikan sekali per lesson.</section>
 </main>
 
 <style>

@@ -11,10 +11,10 @@
         "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
         "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
         "deploy": "npm run build && wrangler pages deploy .svelte-kit/cloudflare",
-        "d1:local": "wrangler d1 execute elmozza-db --local --file=./schema.sql",
-        "d1:remote": "wrangler d1 execute elmozza-db --remote --file=./schema.sql",
-        "d1:dev": "npm run d1:local",
-        "d1:push": "npm run d1:remote"
+        "d1:fresh:local": "wrangler d1 execute elmozza-db --local --file=./schema.sql",
+        "d1:migrate:local": "wrangler d1 execute elmozza-db --local --file=./migrations/0001_auth_dashboard.sql",
+        "d1:migrate:remote": "wrangler d1 execute elmozza-db --remote --file=./migrations/0001_auth_dashboard.sql",
+        "d1:dev": "npm run d1:fresh:local"
     },
     "devDependencies": {
         "@cloudflare/workers-types": "^4.20260103.0",

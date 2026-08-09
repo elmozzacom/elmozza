@@ -40,9 +40,13 @@
 		<nav class="site-nav" aria-label="Menu utama">
 			<a class="active" href="/">Beranda</a>
 			<a href="/daily-coach">Daily Coach</a>
+			<a href="/dashboard">Dashboard</a>
 			<a href="#alur">Alur belajar</a>
 		</nav>
-		<a class="header-action" href="/daily-coach">Mulai Daily Coach</a>
+		<div class="header-actions">
+			<a class="login-link" href="/login">Login</a>
+			<a class="header-action" href="/register">Daftar member</a>
+		</div>
 	</header>
 
 	<section class="hero" aria-labelledby="hero-title">
@@ -199,6 +203,7 @@
 	}
 
 	.header-action,
+	.login-link,
 	.primary,
 	.coach-card a {
 		padding: 11px 16px;
@@ -209,6 +214,18 @@
 		font-size: 0.9rem;
 		font-weight: 800;
 		box-shadow: 0 8px 18px #176a7028;
+	}
+
+	.header-actions {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.login-link {
+		background: #e7f5f2;
+		color: #176a70;
+		box-shadow: none;
 	}
 
 	.hero {
@@ -412,8 +429,17 @@
 			grid-template-columns: 1fr;
 		}
 
-		.header-action {
+		.header-action,
+		.header-actions {
 			width: 100%;
+		}
+
+		.header-actions {
+			align-items: stretch;
+			flex-direction: column;
+		}
+
+		.header-actions a {
 			text-align: center;
 		}
 	}

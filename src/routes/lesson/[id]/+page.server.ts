@@ -1,6 +1,7 @@
 import { dev } from '$app/environment';
-import { error, fail } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
+import { error } from '@sveltejs/kit';
+import type { PageServerLoad } from './$types';
+import { requireUser } from '$lib/server/auth';
 
 type QuestionRow = {
 	id: number;
@@ -39,7 +40,8 @@ const shuffleArray = <T>(input: T[]): T[] => {
 	return arr;
 };
 
-export const load: PageServerLoad = async ({ params, platform }) => {
+export const load: PageServerLoad = async ({ params, platform, locals }) => {
+	const user = requireUser(locals.user);
 	const lessonId = Number(params.id);
 
 	if (Number.isNaN(lessonId)) {
@@ -49,10 +51,13 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 	const db = platform?.env?.DB;
 	if (!db) {
 		if (dev) {
-			return { lessonId, questions: [] };
+			return { lessonId, questions: [], user: locals.user };
 		}
 		throw error(500, 'Database binding (DB) is missing on platform.env');
 	}
+
+	const lesson = await db.prepare('SELECT id FROM lessons WHERE id = ?').bind(lessonId).first<{ id: number }>();
+	if (!lesson) throw error(404, 'Lesson tidak ditemukan.');
 
 	const { results } = await db
 		.prepare(
@@ -80,57 +85,7 @@ export const load: PageServerLoad = async ({ params, platform }) => {
 
 	return {
 		lessonId,
-		questions
+		questions,
+		user: locals.user
 	};
-};
-
-export const actions: Actions = {
-	complete: async ({ request, platform }) => {
-		const db = platform?.env?.DB;
-		if (!db) {
-			if (dev) {
-				return fail(503, { message: 'Database unavailable in dev without platform proxy' });
-			}
-			throw error(500, 'Database binding (DB) is missing on platform.env');
-		}
-
-		const form = await request.formData();
-		const userId = Number(form.get('userId'));
-		const xpFromForm = Number(form.get('xp') ?? form.get('xpEarned') ?? 0);
-
-		if (Number.isNaN(userId)) {
-			return fail(400, { message: 'A valid userId is required' });
-		}
-
-		const xp = Number.isFinite(xpFromForm) && xpFromForm > 0 ? xpFromForm : 0;
-
-		const result = await db
-			.prepare(
-				`UPDATE users
-				 SET total_xp = total_xp + ?,
-				     current_streak = current_streak + 1,
-				     last_login = datetime('now')
-				 WHERE id = ?`
-			)
-			.bind(xp, userId)
-			.run();
-
-		if (!result.success) {
-			return fail(500, { message: 'Failed to update XP/streak' });
-		}
-
-		const updatedUser = await db
-			.prepare(
-				`SELECT id, username, current_streak, total_xp, last_login
-				 FROM users
-				 WHERE id = ?`
-			)
-			.bind(userId)
-			.first();
-
-		return {
-			success: true,
-			user: updatedUser
-		};
-	}
 };

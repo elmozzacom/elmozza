@@ -2,6 +2,7 @@
 // for information about these interfaces
 
 import type { D1Database } from '@cloudflare/workers-types';
+import type { AuthUser } from '$lib/server/auth';
 
 type Env = {
 	DB: D1Database;
@@ -10,7 +11,10 @@ type Env = {
 declare global {
 	namespace App {
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			db: D1Database | null;
+			user: AuthUser | null;
+		}
 		// interface PageData {}
 		// interface PageState {}
 		interface Platform {
