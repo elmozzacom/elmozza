@@ -39,6 +39,15 @@ test('server hook resolves and expires sessions and applies security headers', (
   assert.match(source, /x-content-type-options/i);
 });
 
+test('PBKDF2 iteration count stays within Cloudflare Workers Web Crypto limit', () => {
+  const auth = read('src/lib/server/auth.ts');
+  const match = auth.match(/iterations:\s*(\d[\d_]*)/);
+  assert.ok(match, 'PBKDF2 iteration count must be explicit');
+  const iterations = Number(match[1].replaceAll('_', ''));
+  assert.ok(iterations >= 100000, 'PBKDF2 must use at least 100,000 iterations');
+  assert.ok(iterations <= 100000, 'Cloudflare Workers rejects PBKDF2 above 100,000 iterations');
+});
+
 test('auth uses secure cookies, generic login errors, internal redirects, and D1 backoff', () => {
   const auth = read('src/lib/server/auth.ts');
   const login = read('src/routes/login/+page.server.ts');
