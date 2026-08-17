@@ -35,8 +35,26 @@ test('dashboard has header menu, mobile sidebar, and floating dock', () => {
   const page = read('src/routes/dashboard/+page.svelte');
   const shell = read('src/lib/components/EnglishAppShell.svelte');
   assert.match(page, /EnglishAppShell/);
+  assert.match(page, /alertStreak/);
   assert.match(shell, /topbar/);
   assert.match(shell, /sidebar/);
   assert.match(shell, /fly-dock/);
   assert.match(shell, /prefers-reduced-motion/);
+});
+
+test('floating dock auto-hides, respects safe area, and shows a streak badge', () => {
+  const shell = read('src/lib/components/EnglishAppShell.svelte');
+  assert.match(shell, /tucked/);
+  assert.match(shell, /env\(safe-area-inset-bottom/);
+  assert.match(shell, /\.dot::after/);
+  assert.match(shell, /scale\(0\.94\)/);
+  assert.match(shell, /<svg viewBox="0 0 24 24">/);
+  assert.match(shell, /requestAnimationFrame/);
+  assert.match(shell, /removeEventListener\('scroll'/);
+});
+
+test('dashboard load reports whether a lesson was completed today', () => {
+  const source = read('src/routes/dashboard/+page.server.ts');
+  assert.match(source, /doneToday/);
+  assert.match(source, /date\(completed_at\) = date\('now'\)/);
 });

@@ -32,7 +32,7 @@
 	/>
 </svelte:head>
 
-<EnglishAppShell username={data.user.username} role={roleLabel} active="dashboard" admin={data.user.role === 'owner' || data.user.role === 'admin'}>
+<EnglishAppShell username={data.user.username} role={roleLabel} active="dashboard" alertStreak={!data.doneToday && !finished} admin={data.user.role === 'owner' || data.user.role === 'admin'}>
 <div class="dashboard-shell command-center">
 	<main class="feed">
 		<header class="identity">

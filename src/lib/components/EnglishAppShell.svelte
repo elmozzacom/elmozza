@@ -4,21 +4,53 @@
 		role = 'learner',
 		active = 'dashboard',
 		admin = false,
+		alertStreak = false,
 		children
 	}: {
 		username?: string;
 		role?: string;
 		active?: 'studio' | 'class' | 'dashboard' | 'members';
 		admin?: boolean;
+		alertStreak?: boolean;
 		children: import('svelte').Snippet;
 	} = $props();
 
 	let open = $state(false);
+	let dockHidden = $state(false);
 	const initial = $derived((username ?? 'E').slice(0, 1).toUpperCase());
 
 	function close() {
 		open = false;
 	}
+
+	// Auto-hide: dock slides away while scrolling down, returns on scroll up.
+	$effect(() => {
+		if (typeof window === 'undefined') return;
+		const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (reduce) return;
+
+		let last = window.scrollY;
+		let ticking = false;
+
+		const update = () => {
+			const y = window.scrollY;
+			const delta = y - last;
+			if (Math.abs(delta) > 6) {
+				dockHidden = delta > 0 && y > 120;
+				last = y;
+			}
+			ticking = false;
+		};
+
+		const onScroll = () => {
+			if (ticking) return;
+			ticking = true;
+			window.requestAnimationFrame(update);
+		};
+
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
+	});
 </script>
 
 <div class="app" class:nav-open={open}>
@@ -64,16 +96,48 @@
 
 	<div class="stage">{@render children()}</div>
 
-	<nav class="fly-dock" aria-label="Navigasi cepat">
-		<a class:on={active === 'studio'} href="/"><span>⌂</span>Studio</a>
-		<a class:on={active === 'class'} href="/daily-coach"><span>▣</span>Kelas</a>
-		<a class="lift on" href="/dashboard" aria-current={active === 'dashboard' ? 'page' : undefined}><span>+</span>Hari ini</a>
+	<nav class="fly-dock" class:tucked={dockHidden} aria-label="Navigasi cepat">
+		<a class:on={active === 'studio'} href="/">
+			<span aria-hidden="true">
+				<svg viewBox="0 0 24 24"><path d="M4 11 12 4l8 7" /><path d="M6 10v9h12v-9" /></svg>
+			</span>
+			Studio
+		</a>
+		<a class:on={active === 'class'} href="/daily-coach">
+			<span aria-hidden="true">
+				<svg viewBox="0 0 24 24"><path d="M4 5h7v14H4z" /><path d="M13 5h7v14h-7z" /></svg>
+			</span>
+			Kelas
+		</a>
+		<a class="lift" href="/daily-coach">
+			<span aria-hidden="true">
+				<svg viewBox="0 0 24 24"><path d="M12 6v12" /><path d="M6 12h12" /></svg>
+			</span>
+			Mulai
+		</a>
+		<a class:on={active === 'dashboard'} href="/dashboard" aria-current={active === 'dashboard' ? 'page' : undefined}>
+			<span aria-hidden="true" class:dot={alertStreak}>
+				<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l3 2" /></svg>
+			</span>
+			Progres
+		</a>
 		{#if admin}
-			<a class:on={active === 'members'} href="/dashboard/admin/members"><span>☰</span>Member</a>
+			<a class:on={active === 'members'} href="/dashboard/admin/members">
+				<span aria-hidden="true">
+					<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3" /><path d="M4 19c0-3 2.5-5 5-5s5 2 5 5" /><path d="M16 8h4" /><path d="M16 12h4" /></svg>
+				</span>
+				Member
+			</a>
 		{:else}
-			<a href="/dashboard"><span>◎</span>Progres</a>
+			<form method="POST" action="/logout">
+				<button type="submit">
+					<span aria-hidden="true">
+						<svg viewBox="0 0 24 24"><path d="M14 5H6v14h8" /><path d="M15 12h6" /><path d="m18 9 3 3-3 3" /></svg>
+					</span>
+					Keluar
+				</button>
+			</form>
 		{/if}
-		<form method="POST" action="/logout"><button type="submit"><span>→</span>Keluar</button></form>
 	</nav>
 </div>
 
@@ -81,7 +145,7 @@
 	.app {
 		min-width: 0;
 		min-height: 100dvh;
-		padding-bottom: 88px;
+		padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px));
 	}
 	.topbar {
 		position: sticky;
@@ -135,8 +199,7 @@
 		border-radius: 999px;
 	}
 	.desk-nav a.on,
-	.sidebar a.on,
-	.fly-dock a.on {
+	.sidebar a.on {
 		background: #16382c;
 		color: #f7efe1;
 	}
@@ -181,56 +244,104 @@
 	.stage {
 		min-width: 0;
 	}
+
+	/* Floating dock */
 	.fly-dock {
 		position: fixed;
 		left: 50%;
-		bottom: 14px;
+		bottom: calc(14px + env(safe-area-inset-bottom, 0px));
 		z-index: 30;
-		transform: translateX(-50%);
 		width: min(560px, calc(100% - 20px));
 		display: grid;
 		grid-template-columns: repeat(5, 1fr);
-		gap: 4px;
-		padding: 8px 10px 10px;
-		border-radius: 28px;
-		background: #11150f;
-		color: #f7efe1;
-		box-shadow: 0 16px 40px #16382c55;
+		gap: 2px;
+		padding: 8px 8px 10px;
+		border-radius: 26px;
+		background: rgba(14, 18, 13, 0.92);
+		border: 1px solid #ffffff1f;
+		box-shadow: 0 18px 44px #0b170f66;
+		backdrop-filter: blur(14px);
+		transform: translate(-50%, 0);
+		transition: transform 0.28s ease, opacity 0.28s ease;
+	}
+	.fly-dock.tucked {
+		transform: translate(-50%, calc(100% + 28px));
+		opacity: 0;
+		pointer-events: none;
 	}
 	.fly-dock a,
 	.fly-dock button,
 	.fly-dock form {
 		display: grid;
 		justify-items: center;
-		gap: 2px;
-		color: #cfc3ae;
-		font-size: 0.62rem;
-		letter-spacing: 0.04em;
+		align-content: center;
+		gap: 3px;
+		min-height: 46px;
+		color: #b9b1a2;
+		font-size: 0.6rem;
+		font-weight: 700;
+		letter-spacing: 0.05em;
 		text-transform: uppercase;
+		transition: color 0.18s ease, transform 0.12s ease;
+	}
+	.fly-dock a:active,
+	.fly-dock button:active {
+		transform: scale(0.94);
 	}
 	.fly-dock span {
-		width: 28px;
-		height: 28px;
+		position: relative;
+		width: 30px;
+		height: 30px;
 		border-radius: 50%;
 		display: grid;
 		place-items: center;
-		font-size: 0.95rem;
+	}
+	.fly-dock svg {
+		width: 20px;
+		height: 20px;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 1.7;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+	.fly-dock a.on {
+		color: #fdf6e8;
+	}
+	.fly-dock a.on span {
+		background: #2a4638;
 	}
 	.fly-dock .lift {
+		color: #f7efe1;
 		transform: translateY(-16px);
-		background: transparent;
 	}
 	.fly-dock .lift span {
 		width: 46px;
 		height: 46px;
-		background: #b8893a;
-		color: #fff;
-		box-shadow: 0 8px 18px #b8893a66;
+		background: linear-gradient(160deg, #d0a24d, #b8893a);
+		color: #1a1206;
+		box-shadow: 0 10px 22px #b8893a66;
 	}
-	.fly-dock a.on span {
-		background: #2a4638;
-		color: #fff;
+	.fly-dock .lift svg {
+		width: 24px;
+		height: 24px;
+		stroke-width: 2.2;
 	}
+	.fly-dock .lift:active {
+		transform: translateY(-16px) scale(0.94);
+	}
+	.fly-dock .dot::after {
+		content: '';
+		position: absolute;
+		top: 2px;
+		right: 2px;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background: #e2703a;
+		box-shadow: 0 0 0 2px rgba(14, 18, 13, 0.92);
+	}
+
 	@media (max-width: 860px) {
 		.desk-nav,
 		.who {
@@ -273,11 +384,26 @@
 			text-transform: uppercase;
 		}
 	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.sidebar,
-		.fly-dock .lift {
+		.fly-dock,
+		.fly-dock a,
+		.fly-dock button {
 			transition: none;
+		}
+		.fly-dock.tucked {
+			transform: translate(-50%, 0);
+			opacity: 1;
+			pointer-events: auto;
+		}
+		.fly-dock a:active,
+		.fly-dock button:active,
+		.fly-dock .lift:active {
 			transform: none;
+		}
+		.fly-dock .lift {
+			transform: translateY(-16px);
 		}
 	}
 </style>

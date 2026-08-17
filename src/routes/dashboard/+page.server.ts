@@ -7,6 +7,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const db = locals.db;
 	const total_xp = user.total_xp;
 	let completedDays: number[] = [];
+	let doneToday = false;
 
 	if (db) {
 		const { results } = await db
@@ -18,6 +19,14 @@ export const load: PageServerLoad = async ({ locals }) => {
 		completedDays = (results ?? [])
 			.map((row) => Number(row.lesson_code.slice(-2)))
 			.filter(Number.isFinite);
+
+		const today = await db
+			.prepare(
+				"SELECT COUNT(*) AS total FROM lesson_progress WHERE user_id = ? AND status = 'completed' AND date(completed_at) = date('now')"
+			)
+			.bind(user.id)
+			.first<{ total: number }>();
+		doneToday = Number(today?.total ?? 0) > 0;
 	}
 
 	const completedSet = new Set(completedDays);
@@ -39,6 +48,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	return {
 		user: { ...user, total_xp },
 		completed,
+		doneToday,
 		progress: Math.round((completed / 14) * 100),
 		nextLesson,
 		nextTitle: next?.title ?? 'Greeting and Introduction',
