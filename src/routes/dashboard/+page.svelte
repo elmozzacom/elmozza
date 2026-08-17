@@ -1,4 +1,6 @@
 <script lang="ts">
+	import EnglishAppShell from '$lib/components/EnglishAppShell.svelte';
+
 	let { data } = $props();
 
 	const roleLabel = $derived(
@@ -13,7 +15,13 @@
 						: 'Member'
 	);
 	const finished = $derived(data.completed >= 14);
-	const initial = $derived((data.user.username ?? 'E').slice(0, 1).toUpperCase());
+	const ring = 264;
+	const ringOffset = $derived(ring - (ring * Math.min(100, Math.max(0, data.progress))) / 100);
+	const remaining = $derived(Math.max(0, 14 - data.completed));
+	const remainingMinutes = $derived(
+		data.lessons.filter((lesson) => lesson.status !== 'completed').reduce((sum, lesson) => sum + lesson.durationMinutes, 0)
+	);
+	const nextObjective = $derived(data.lessons.find((lesson) => lesson.day === data.nextLesson)?.objective ?? '');
 </script>
 
 <svelte:head>
@@ -24,62 +32,63 @@
 	/>
 </svelte:head>
 
-<div class="dashboard-shell">
-	<aside class="rail rail-left" aria-label="Menu dashboard">
-		<a class="brand" href="/" aria-label="Elmozza beranda">
-			<span class="mark" aria-hidden="true">e</span>
-			<span>
-				<b>El mozza</b>
-				<small>english course</small>
-			</span>
-		</a>
-		<nav>
-			<a href="/">Beranda</a>
-			<a href="/daily-coach">Daily Coach</a>
-			<a class="active" href="/dashboard">Dashboard</a>
-			{#if data.user.role === 'owner' || data.user.role === 'admin'}
-				<a href="/dashboard/admin/members">Member</a>
-			{/if}
-		</nav>
-		<form method="POST" action="/logout">
-			<button type="submit">Keluar</button>
-		</form>
-	</aside>
-
+<EnglishAppShell username={data.user.username} role={roleLabel} active="dashboard" admin={data.user.role === 'owner' || data.user.role === 'admin'}>
+<div class="dashboard-shell command-center">
 	<main class="feed">
 		<header class="identity">
-			<div class="avatar" aria-hidden="true">{initial}</div>
 			<div>
 				<p class="eyebrow">English Daily Coach</p>
-				<h1>Halo, {data.user.username}</h1>
-				<p class="meta">{roleLabel} · {data.completed} dari 14 lesson selesai</p>
+				<h1>Selamat datang kembali, {data.user.username}</h1>
+				<p class="lede">
+					{finished
+						? 'Program 14 hari sudah tuntas. Ulangi dialog kapan saja — XP tidak dihitung dua kali.'
+						: `${data.completed} dari 14 lesson selesai. Lanjutkan Day ${data.nextLesson} hari ini.`}
+				</p>
 			</div>
+			<figure class="progress-ring" aria-label={`Progress ${data.progress} persen`}>
+				<svg viewBox="0 0 96 96" role="img">
+					<title>Progress {data.progress}%</title>
+					<circle class="track" cx="48" cy="48" r="42"></circle>
+					<circle class="value" cx="48" cy="48" r="42" stroke-dasharray={ring} stroke-dashoffset={ringOffset}></circle>
+				</svg>
+				<figcaption>
+					<strong>{data.progress}%</strong>
+					<span>selesai</span>
+				</figcaption>
+			</figure>
 		</header>
 
 		<section class="today" aria-labelledby="today-title">
-			<p class="kicker">{finished ? 'PROGRAM SELESAI' : 'LANJUTKAN HARI INI'}</p>
-			<h2 id="today-title">
-				{finished ? '14 hari sudah tuntas' : `Day ${data.nextLesson} · ${data.nextTitle}`}
-			</h2>
-			<p>
-				{#if finished}
-					Ulangi dialog dan kuis kapan saja. XP tidak dihitung dua kali untuk lesson yang sama.
-				{:else}
-					{data.lessons.find((lesson) => lesson.day === data.nextLesson)?.objective}
-				{/if}
-			</p>
-			<a class="primary" href="/daily-coach">{finished ? 'Buka ulang kelas' : 'Mulai belajar →'}</a>
+			<div>
+				<p class="kicker">{finished ? 'Program selesai' : 'Fokus hari ini'}</p>
+				<h2 id="today-title">{finished ? 'Siap diulang kapan saja' : `Day ${data.nextLesson} · ${data.nextTitle}`}</h2>
+				<p>{finished ? 'Gunakan ulang kelas untuk menjaga kosakata tetap hidup.' : nextObjective}</p>
+			</div>
+			<a class="primary" href="/daily-coach">{finished ? 'Buka ulang kelas' : 'Lanjutkan belajar'}</a>
 		</section>
 
-		<section class="timeline" aria-label="Jalur 14 hari">
+		<section class="journey" aria-label="Peta 14 hari">
+			<p class="kicker">Jalur 14 hari</p>
+			<ol class="journey-strip">
+				{#each data.lessons as lesson}
+					<li data-status={lesson.status} title={`Day ${lesson.day}: ${lesson.title}`}>
+						<span>{lesson.day}</span>
+					</li>
+				{/each}
+			</ol>
+		</section>
+
+		<section class="timeline" aria-label="Rincian lesson">
 			{#each data.lessons as lesson}
 				<article class="post" data-status={lesson.status}>
-					<div class="avatar small" aria-hidden="true">{lesson.day}</div>
+					<div class="day-mark" aria-hidden="true">{lesson.day}</div>
 					<div class="post-body">
 						<div class="post-head">
 							<strong>Day {lesson.day}</strong>
-							<span>{lesson.durationMinutes} menit</span>
-							<em>{lesson.status === 'completed' ? 'Selesai' : lesson.status === 'current' ? 'Berikutnya' : 'Menunggu'}</em>
+							<span>{lesson.durationMinutes} menit · A1–A2</span>
+							<em>
+								{lesson.status === 'completed' ? 'Selesai' : lesson.status === 'current' ? 'Berikutnya' : 'Menunggu'}
+							</em>
 						</div>
 						<h3>{lesson.title}</h3>
 						<p>{lesson.objective}</p>
@@ -101,25 +110,26 @@
 				<strong>{data.user.current_streak} hari</strong>
 			</article>
 			<article>
-				<span>Progress</span>
-				<strong>{data.progress}%</strong>
-				<div class="bar" aria-hidden="true"><i style={`width:${data.progress}%`}></i></div>
+				<span>Sisa lesson</span>
+				<strong>{remaining}</strong>
+				<small>{remainingMinutes} menit perkiraan</small>
 			</article>
 		</section>
 		<section class="tip">
-			<p class="kicker">CARA PAKAI</p>
+			<p class="kicker">Ritme yang kami anjurkan</p>
 			<ol>
-				<li>Buka lesson hari ini</li>
-				<li>Baca dialog dan kosakata</li>
+				<li>Satu lesson, lima sampai sepuluh menit</li>
+				<li>Baca dialog keras-keras</li>
 				<li>Jawab kuis sekali dengan benar</li>
-				<li>Kembali besok untuk streak</li>
+				<li>Kembali besok agar streak tetap hidup</li>
 			</ol>
 		</section>
 		{#if data.user.role === 'owner' || data.user.role === 'admin'}
-			<a class="admin" href="/dashboard/admin/members">Kelola member →</a>
+			<a class="admin" href="/dashboard/admin/members">Kelola member</a>
 		{/if}
 	</aside>
 </div>
+</EnglishAppShell>
 
 <style>
 	:global(*) {
@@ -129,19 +139,19 @@
 	:global(body) {
 		margin: 0;
 		overflow-x: hidden;
-		background: #f3f6f4;
-		color: #14231c;
-		font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+		background: #f4efe6;
+		color: #161410;
+		font-family: 'Segoe UI', ui-sans-serif, system-ui, sans-serif;
 	}
 
 	.dashboard-shell {
 		min-width: 0;
-		max-width: 1180px;
+		max-width: 1240px;
 		margin: 0 auto;
-		padding: 18px 16px 72px;
+		padding: 24px 20px 24px;
 		display: grid;
-		grid-template-columns: 220px minmax(0, 1fr) 260px;
-		gap: 18px;
+		grid-template-columns: minmax(0, 1fr) 280px;
+		gap: 20px;
 		align-items: start;
 	}
 
@@ -150,74 +160,50 @@
 	.post,
 	.stats,
 	.tip,
-	.admin {
-		background: #fff;
-		border: 1px solid #dce7df;
-		border-radius: 22px;
+	.admin,
+	.journey {
+		background: #fffcf7;
+		border: 1px solid #e4d8c4;
+		border-radius: 24px;
 	}
 
-	.rail-left,
 	.rail-right {
 		position: sticky;
 		top: 16px;
-		padding: 18px;
+		padding: 20px;
 	}
 
-	.brand {
-		display: flex;
-		align-items: center;
-		gap: 10px;
-		color: inherit;
-		text-decoration: none;
-	}
-
-	.mark,
-	.avatar {
+	.day-mark {
 		width: 40px;
 		height: 40px;
 		border-radius: 50%;
 		display: grid;
 		place-items: center;
-		background: #114d3a;
-		color: #fff;
+		background: #16382c;
+		color: #f7efe1;
 		font-weight: 800;
-	}
-
-	.avatar.small {
-		width: 36px;
-		height: 36px;
-		background: #e8f3ec;
-		color: #114d3a;
 		flex: 0 0 auto;
 	}
 
-	.brand b,
-	.brand small {
-		display: block;
-	}
-
-	.brand small,
 	.eyebrow,
 	.kicker,
-	.meta,
 	.post-head span,
 	.post-head em,
-	.stats span {
-		color: #5d7268;
+	.stats span,
+	.stats small {
+		color: #7a6a52;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
 		font-size: 0.68rem;
 		font-weight: 800;
 	}
 
-	.rail-left nav {
+	.stats {
 		display: grid;
-		gap: 6px;
-		margin: 22px 0;
+		gap: 8px;
+		margin: 0 0 16px;
 	}
 
-	.rail-left a,
-	.rail-left button,
 	.primary,
 	.post a,
 	.admin {
@@ -225,66 +211,123 @@
 		width: 100%;
 		border: 0;
 		border-radius: 999px;
-		padding: 11px 14px;
+		padding: 12px 14px;
 		background: transparent;
-		color: #1b3328;
+		color: #1b1712;
 		text-align: left;
 		text-decoration: none;
 		font-weight: 800;
 		cursor: pointer;
 	}
 
-	.rail-left a.active,
-	.rail-left a:hover,
-	.rail-left button:hover {
-		background: #e8f3ec;
+	.post a:focus-visible,
+	.primary:focus-visible {
+		background: #f0e6d4;
+		outline: 2px solid #b8893a;
+		outline-offset: 2px;
 	}
 
 	.feed {
 		min-width: 0;
 		display: grid;
-		gap: 14px;
+		gap: 16px;
 	}
 
 	.identity {
 		display: flex;
-		gap: 12px;
+		justify-content: space-between;
+		gap: 18px;
 		align-items: center;
-		padding: 6px 4px;
 	}
 
 	h1,
 	h2,
 	h3 {
-		margin: 0.15rem 0;
-		font-family: Georgia, serif;
+		margin: 0.2rem 0;
+		font-family: 'Iowan Old Style', Palatino, Georgia, serif;
+		letter-spacing: -0.03em;
 	}
 
 	h1 {
-		font-size: clamp(1.6rem, 4vw, 2.2rem);
+		font-size: clamp(1.8rem, 4vw, 2.6rem);
+		line-height: 1.08;
+		max-width: 16ch;
+	}
+
+	.lede,
+	.today p,
+	.post p,
+	.tip li {
+		color: #5c5348;
+		line-height: 1.65;
+	}
+
+	.progress-ring {
+		position: relative;
+		width: 108px;
+		height: 108px;
+		margin: 0;
+		flex: 0 0 auto;
+	}
+
+	.progress-ring svg {
+		width: 108px;
+		height: 108px;
+		transform: rotate(-90deg);
+	}
+
+	.progress-ring circle {
+		fill: none;
+		stroke-width: 8;
+	}
+
+	.track {
+		stroke: #eadcc6;
+	}
+
+	.value {
+		stroke: #b8893a;
+		stroke-linecap: round;
+		transition: stroke-dashoffset 0.6s ease;
+	}
+
+	.progress-ring figcaption {
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-content: center;
+		text-align: center;
+	}
+
+	.progress-ring strong {
+		font-size: 1.15rem;
 	}
 
 	.today,
 	.post,
 	.stats,
-	.tip {
-		padding: 20px;
+	.tip,
+	.journey {
+		padding: 22px;
 	}
 
 	.today {
-		background: linear-gradient(160deg, #114d3a, #1f7a5b);
-		color: #fff;
+		display: flex;
+		justify-content: space-between;
+		gap: 18px;
+		align-items: center;
+		background: #16382c;
+		color: #f7efe1;
 		border: 0;
 	}
 
 	.today .kicker,
 	.today p {
-		color: #d7efe4;
+		color: #d7c7a5;
 		text-transform: none;
 		letter-spacing: 0;
-		font-size: 0.98rem;
+		font-size: 1rem;
 		font-weight: 500;
-		line-height: 1.6;
 	}
 
 	.today .kicker {
@@ -297,15 +340,44 @@
 	.primary,
 	.admin {
 		width: fit-content;
-		margin-top: 14px;
-		background: #fff;
-		color: #114d3a;
+		background: #f7efe1;
+		color: #16382c;
 		text-align: center;
+	}
+
+	.journey-strip {
+		display: grid;
+		grid-template-columns: repeat(14, minmax(0, 1fr));
+		gap: 6px;
+		margin: 12px 0 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.journey-strip li {
+		aspect-ratio: 1;
+		border-radius: 10px;
+		display: grid;
+		place-items: center;
+		background: #f0e6d4;
+		color: #7a6a52;
+		font-size: 0.75rem;
+		font-weight: 800;
+	}
+
+	.journey-strip li[data-status='completed'] {
+		background: #16382c;
+		color: #f7efe1;
+	}
+
+	.journey-strip li[data-status='current'] {
+		background: #b8893a;
+		color: #fff;
 	}
 
 	.post {
 		display: flex;
-		gap: 12px;
+		gap: 14px;
 	}
 
 	.post-head {
@@ -322,51 +394,30 @@
 	}
 
 	.post[data-status='upcoming'] em {
-		color: #7a8680;
-	}
-
-	.post h3 {
-		font-size: 1.15rem;
-	}
-
-	.post p,
-	.tip li {
-		margin: 6px 0 0;
-		color: #4b5d54;
-		line-height: 1.55;
+		color: #8a8073;
 	}
 
 	.post a {
 		width: fit-content;
 		margin-top: 10px;
-		padding: 8px 12px;
-		background: #e8f3ec;
-		color: #114d3a;
-	}
-
-	.stats {
-		display: grid;
-		gap: 16px;
+		padding: 10px 14px;
+		background: #f0e6d4;
+		color: #16382c;
 	}
 
 	.stats strong {
 		display: block;
 		margin-top: 4px;
-		font-size: 1.7rem;
+		font-size: 1.8rem;
+		font-family: 'Iowan Old Style', Palatino, Georgia, serif;
 	}
 
-	.bar {
-		margin-top: 8px;
-		height: 8px;
-		border-radius: 99px;
-		background: #e8f3ec;
-		overflow: hidden;
-	}
-
-	.bar i {
+	.stats small {
 		display: block;
-		height: 100%;
-		background: #1f7a5b;
+		margin-top: 4px;
+		text-transform: none;
+		letter-spacing: 0;
+		font-weight: 600;
 	}
 
 	.tip ol {
@@ -377,30 +428,31 @@
 	.admin {
 		display: block;
 		margin-top: 12px;
-		background: #114d3a;
-		color: #fff;
-		text-align: center;
+		background: #16382c;
+		color: #f7efe1;
 	}
 
 	@media (max-width: 980px) {
 		.dashboard-shell {
 			grid-template-columns: 1fr;
-			padding-bottom: 28px;
+			padding-bottom: 32px;
 		}
 
-		.rail-left,
-		.rail-right {
+		.rail-right,
+		.today,
+		.identity {
 			position: static;
+			flex-direction: column;
+			align-items: flex-start;
 		}
 
-		.rail-left nav {
+		h1 {
+			max-width: none;
+		}
+
+		.journey-strip {
 			display: flex;
 			flex-wrap: wrap;
-		}
-
-		.rail-left a,
-		.rail-left button {
-			width: auto;
 		}
 
 		.primary,

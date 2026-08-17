@@ -13,7 +13,7 @@ const SECURITY_HEADERS = {
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// App routes move to english.elmozza.com only after that hostname resolves.
-	const englishHostReady = false;
+	const englishHostReady = true;
 	if (englishHostReady && isBrandHost(event.url.hostname) && isAppPath(event.url.pathname)) {
 		throw redirect(302, englishUrl(event.url.pathname, event.url.search));
 	}
