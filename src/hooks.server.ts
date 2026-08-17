@@ -1,6 +1,8 @@
 import { dev } from '$app/environment';
 import type { Handle } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { SESSION_COOKIE, safeUser } from '$lib/server/auth';
+import { englishUrl, isAppPath, isBrandHost } from '$lib/hosts';
 
 const SECURITY_HEADERS = {
 	'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
@@ -10,6 +12,12 @@ const SECURITY_HEADERS = {
 };
 
 export const handle: Handle = async ({ event, resolve }) => {
+	// App routes move to english.elmozza.com only after that hostname resolves.
+	const englishHostReady = false;
+	if (englishHostReady && isBrandHost(event.url.hostname) && isAppPath(event.url.pathname)) {
+		throw redirect(302, englishUrl(event.url.pathname, event.url.search));
+	}
+
 	event.locals.db = event.platform?.env?.DB ?? null;
 	event.locals.user = null;
 
