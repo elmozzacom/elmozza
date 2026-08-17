@@ -26,8 +26,13 @@ export const actions: Actions = {
 		await db.prepare(
 			`INSERT INTO login_attempts (attempt_key, failed_count, blocked_until, updated_at)
 			 VALUES (?, 1, NULL, datetime('now'))
-			 ON CONFLICT(attempt_key) DO UPDATE SET failed_count = failed_count + 1,
-			 blocked_until = CASE WHEN failed_count + 1 >= 5 THEN datetime('now', '+1 hour') ELSE NULL END,
+			 ON CONFLICT(attempt_key) DO UPDATE SET
+			 failed_count = CASE WHEN blocked_until IS NOT NULL AND blocked_until <= datetime('now') THEN 1 ELSE failed_count + 1 END,
+			 blocked_until = CASE
+			   WHEN blocked_until IS NOT NULL AND blocked_until <= datetime('now') THEN NULL
+			   WHEN failed_count + 1 >= 5 THEN datetime('now', '+1 hour')
+			   ELSE NULL
+			 END,
 			 updated_at = datetime('now')`
 		).bind(registerKey).run();
 

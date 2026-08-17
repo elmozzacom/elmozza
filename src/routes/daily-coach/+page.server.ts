@@ -31,7 +31,20 @@ export const actions: Actions = {
 		const reconcile = locals.db.prepare(
 			`UPDATE users SET
 			 total_xp = COALESCE((SELECT SUM(xp_awarded) FROM lesson_progress WHERE user_id = ? AND status = 'completed'), 0),
-			 current_streak = (SELECT COUNT(DISTINCT date(completed_at)) FROM lesson_progress WHERE user_id = ? AND status = 'completed'),
+			 current_streak = (
+			   WITH RECURSIVE completed_days(day) AS (
+			     SELECT DISTINCT date(completed_at) FROM lesson_progress
+			     WHERE user_id = ? AND status = 'completed'
+			   ), streak(day, length) AS (
+			     SELECT MAX(day), 1 FROM completed_days
+			     HAVING MAX(day) >= date('now', '-1 day')
+			     UNION ALL
+			     SELECT date(streak.day, '-1 day'), streak.length + 1
+			     FROM streak
+			     WHERE EXISTS (SELECT 1 FROM completed_days WHERE day = date(streak.day, '-1 day'))
+			   )
+			   SELECT COALESCE(MAX(length), 0) FROM streak
+			 ),
 			 last_login = datetime('now') WHERE id = ?`
 		).bind(user.id, user.id, user.id);
 		const [inserted] = await locals.db.batch([insert, reconcile]);

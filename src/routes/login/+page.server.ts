@@ -40,8 +40,13 @@ export const actions: Actions = {
 			const attempt = (key: string, threshold: number) => db.prepare(
 				`INSERT INTO login_attempts (attempt_key, failed_count, blocked_until, updated_at)
 				 VALUES (?, 1, NULL, datetime('now'))
-				 ON CONFLICT(attempt_key) DO UPDATE SET failed_count = failed_count + 1,
-				 blocked_until = CASE WHEN failed_count + 1 >= ? THEN datetime('now', '+15 minutes') ELSE NULL END,
+				 ON CONFLICT(attempt_key) DO UPDATE SET
+				 failed_count = CASE WHEN blocked_until IS NOT NULL AND blocked_until <= datetime('now') THEN 1 ELSE failed_count + 1 END,
+				 blocked_until = CASE
+				   WHEN blocked_until IS NOT NULL AND blocked_until <= datetime('now') THEN NULL
+				   WHEN failed_count + 1 >= ? THEN datetime('now', '+15 minutes')
+				   ELSE NULL
+				 END,
 				 updated_at = datetime('now')`
 			).bind(key, threshold);
 			await db.batch([attempt(identifierKey, 5), attempt(ipKey, 20)]);

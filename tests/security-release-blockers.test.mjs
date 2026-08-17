@@ -10,14 +10,25 @@ test('legacy lesson route cannot award XP without a server-side quiz attempt', (
   assert.match(source, /FROM lessons\s+WHERE id = \?/i, 'load must reject nonexistent lessons');
   assert.doesNotMatch(source, /complete\s*:/, 'standalone complete action must be disabled without attempt state');
   assert.doesNotMatch(source, /INSERT INTO lesson_progress/i);
+  assert.doesNotMatch(source, /parsedCorrectAnswer|correct_answer\s*,?\s*options/i, 'correct answers must not be returned in page data');
 });
 
 test('Daily Coach completion is atomic and replay-safe with derived XP and distinct-day streak', () => {
   const source = read('src/routes/daily-coach/+page.server.ts');
   assert.match(source, /\.batch\s*\(/);
   assert.match(source, /SUM\s*\(xp_awarded\)/i);
-  assert.match(source, /COUNT\s*\(DISTINCT\s+date\s*\(completed_at\)\)/i);
+  assert.match(source, /SELECT DISTINCT date\s*\(completed_at\)/i);
   assert.doesNotMatch(source, /current_streak\s*=\s*current_streak\s*\+\s*1/i);
+  assert.match(source, /WITH RECURSIVE[\s\S]*streak/i, 'streak must count consecutive dates, not all active dates');
+});
+
+test('expired login and registration backoff windows reset their counters', () => {
+  const login = read('src/routes/login/+page.server.ts');
+  const register = read('src/routes/register/+page.server.ts');
+  for (const source of [login, register]) {
+    assert.match(source, /blocked_until\s+IS NOT NULL\s+AND\s+blocked_until\s*<=\s*datetime\('now'\)/i);
+    assert.match(source, /THEN 1 ELSE failed_count \+ 1 END/i);
+  }
 });
 
 test('migration commands explicitly use the incremental migration, not fresh schema', () => {

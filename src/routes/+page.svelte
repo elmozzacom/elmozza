@@ -112,8 +112,8 @@
 	</section>
 
 	<section class="notice">
-		<strong>Tahap pengembangan:</strong> program 14 hari sudah dapat dipelajari. Penyimpanan kemajuan,
-		akun peserta, dan laporan belajar akan ditambahkan secara bertahap.
+		<strong>Dashboard member sudah aktif.</strong> Daftar akun, masuk, lalu buka Dashboard untuk melihat
+		XP, streak, dan jalur English Daily Coach 14 hari.
 	</section>
 </main>
 
@@ -124,12 +124,14 @@
 
 	:global(body) {
 		margin: 0;
+		overflow-x: hidden;
 		background: #f4f7fb;
 		color: #1d2a3a;
 		font-family: Inter, ui-sans-serif, system-ui, sans-serif;
 	}
 
 	.page {
+		min-width: 0;
 		max-width: 1180px;
 		margin: 0 auto;
 		padding: 18px 20px 56px;
@@ -406,6 +408,22 @@
 	}
 
 	@media (max-width: 820px) {
+		.page {
+			padding-inline: 12px;
+		}
+
+		.hero-copy,
+		.coach-card,
+		.integration > *,
+		.pathway > * {
+			min-width: 0;
+		}
+
+		h1 {
+			font-size: clamp(2rem, 12vw, 3rem);
+			overflow-wrap: anywhere;
+		}
+
 		.site-header,
 		.site-nav,
 		.hero-actions {

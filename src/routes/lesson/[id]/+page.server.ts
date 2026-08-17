@@ -9,7 +9,6 @@ type QuestionRow = {
 	type: 'multiple_choice' | 'translate' | 'word_order';
 	question_text: string;
 	prompt: string | null;
-	correct_answer: string;
 	options: string | null;
 };
 
@@ -20,14 +19,6 @@ const parseJsonArray = (value: string | null) => {
 		return Array.isArray(parsed) ? parsed : [];
 	} catch {
 		return [];
-	}
-};
-
-const tryParseJson = (value: string) => {
-	try {
-		return JSON.parse(value);
-	} catch {
-		return value;
 	}
 };
 
@@ -61,7 +52,7 @@ export const load: PageServerLoad = async ({ params, platform, locals }) => {
 
 	const { results } = await db
 		.prepare(
-			`SELECT id, lesson_id, type, question_text, prompt, correct_answer, options
+			`SELECT id, lesson_id, type, question_text, prompt, options
 			 FROM questions
 			 WHERE lesson_id = ?
 			 ORDER BY id`
@@ -72,14 +63,14 @@ export const load: PageServerLoad = async ({ params, platform, locals }) => {
 	const questions =
 		results?.map((row) => {
 			const optionList = parseJsonArray(row.options);
-			const optionsWithCorrect = optionList.includes(row.correct_answer)
-				? optionList
-				: [row.correct_answer, ...optionList];
 
 			return {
-				...row,
-				shuffledOptions: shuffleArray(optionsWithCorrect),
-				parsedCorrectAnswer: tryParseJson(row.correct_answer)
+				id: row.id,
+				lesson_id: row.lesson_id,
+				type: row.type,
+				question_text: row.question_text,
+				prompt: row.prompt,
+				shuffledOptions: shuffleArray(optionList)
 			};
 		}) ?? [];
 
