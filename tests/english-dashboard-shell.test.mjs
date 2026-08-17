@@ -1,0 +1,30 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+
+const root = new URL('..', import.meta.url);
+const read = (path) => fs.readFileSync(new URL(path, root), 'utf8');
+
+test('dashboard load builds a 14-day English Daily Coach track from server progress', () => {
+  const source = read('src/routes/dashboard/+page.server.ts');
+  assert.match(source, /requireUser\(locals\.user\)/);
+  assert.match(source, /dailyCoachLessons/);
+  assert.match(source, /lesson_progress/);
+  assert.match(source, /ENG-A1-D%/);
+  assert.match(source, /nextTitle/);
+  assert.doesNotMatch(source, /question\.answer|correct_answer/);
+});
+
+test('dashboard shell is a three-column English command center with real member stats', () => {
+  const source = read('src/routes/dashboard/+page.svelte');
+  assert.match(source, /English Daily Coach/);
+  assert.match(source, /command-center|dashboard-shell/);
+  assert.match(source, /total_xp/i);
+  assert.match(source, /current_streak/i);
+  assert.match(source, /data\.lessons/);
+  assert.match(source, /Day \{lesson\.day\}/);
+  assert.match(source, /prefers-reduced-motion/);
+  assert.match(source, /overflow-x:\s*hidden/i);
+  assert.match(source, /min-width:\s*0/i);
+  assert.doesNotMatch(source, /Cloudflare|Workers|D1|SvelteKit|wrangler/i);
+});

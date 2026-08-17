@@ -11,5 +11,6 @@ test('Daily Coach preview has an Elmozza brand header and navigation menu', () =
   assert.match(source, /El mozza/);
   assert.match(source, /Beranda/);
   assert.match(source, /Daily Coach/);
+  assert.match(source, /Dashboard/);
   assert.match(source, /Tentang/);
 });
