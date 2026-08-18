@@ -15,7 +15,7 @@
 
 <SiteShell {user}>
 	<!-- THE SIGNATURE MOMENT -->
-	<ExplodedSentence data={SIGNATURE} mode="scroll" note={SIGNATURE_NOTE} />
+	<ExplodedSentence data={SIGNATURE} mode="scroll" note={SIGNATURE_NOTE} heading />
 
 	<section class="band lede">
 		<p class="label-util">Elmozza English</p>

@@ -4,12 +4,19 @@
 	let {
 		data,
 		mode = 'scroll',
-		note = ''
+		note = '',
+		/**
+		 * The hero sentence IS the page heading, so on the landing page the
+		 * diagram must be marked up as the h1 rather than sitting under a
+		 * decorative one. Elsewhere it is body copy.
+		 */
+		heading = false
 	}: {
 		data: ExplodedSentence;
 		/** 'scroll' drives the hero; 'hover' is the in-lesson micro-interaction. */
 		mode?: 'scroll' | 'hover';
 		note?: string;
+		heading?: boolean;
 	} = $props();
 
 	// p: 0 = assembled sentence, 1 = fully exploded diagram.
@@ -175,7 +182,7 @@
 		bind:this={stage}
 		style="--p: {p}; --rail-w: {railWidth}px"
 	>
-		<p class="sentence">
+		<svelte:element this={heading ? 'h1' : 'p'} class="sentence">
 			{#each data.fragments as fragment, index}
 				<span
 					class="frag"
@@ -183,7 +190,7 @@
 					style="--dx: {places[index]?.dx ?? 0}px; --dy: {places[index]?.dy ?? 0}px"
 				>{fragment.text}</span>{#if fragment.space}&nbsp;{/if}
 			{/each}
-		</p>
+		</svelte:element>
 
 		<svg class="leaders" aria-hidden="true" focusable="false">
 			{#each places as place}

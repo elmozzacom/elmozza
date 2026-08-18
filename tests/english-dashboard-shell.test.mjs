@@ -65,3 +65,12 @@ test('grammar labels ship in the server HTML, not only after measurement', () =>
   assert.doesNotMatch(source, /\{#if places\[index\]\}/);
   assert.match(source, /class:unplaced=\{!places\[index\]\}/);
 });
+
+test('the signature sentence is the landing page h1', () => {
+  const component = read('src/lib/components/ExplodedSentence.svelte');
+  const landing = read('src/lib/components/EnglishLanding.svelte');
+  // The hero sentence is the page's real heading; shipping the landing page
+  // with no h1 at all is an accessibility and SEO defect.
+  assert.match(component, /svelte:element this=\{heading \? 'h1' : 'p'\}/);
+  assert.match(landing, /mode="scroll"[^>]*heading/);
+});
