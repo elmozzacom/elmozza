@@ -46,7 +46,8 @@ test('google linking updates the existing row instead of creating a duplicate', 
 test('google credentials come from the platform env, never from the bundle', () => {
 	const google = read('src/lib/server/google.ts');
 	assert.match(google, /platform\?\.env/);
-	// Match a real import, not the word inside the comment that explains why.
+	assert.match(google, /\$env\/dynamic\/private/);
+	// Match a real static import, not the word inside the comment that explains why.
 	assert.doesNotMatch(google, /^import .*\$env\/static/m);
 	// Absent credentials hide the button rather than offering a broken journey.
 	assert.match(google, /export function googleConfigured/);

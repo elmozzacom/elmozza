@@ -1,3 +1,4 @@
+import { env as dynamicEnv } from '$env/dynamic/private';
 import { Google } from 'arctic';
 import type { RequestEvent } from '@sveltejs/kit';
 import { error } from '@sveltejs/kit';
@@ -6,13 +7,9 @@ import { error } from '@sveltejs/kit';
  * Google sign-in.
  *
  * Arctic is the OAuth companion to the Lucia session pattern this project
- * already implements in `src/lib/server/auth.ts`: opaque session id in the
- * database, httpOnly cookie, no third-party session state. Arctic handles the
- * protocol; the session it produces is created by our own `createSession`.
- *
- * Credentials come from the platform env (Cloudflare Pages variables, or
- * `.dev.vars` locally) and are never imported from `$env/static`, which would
- * bake them into the build.
+ * already implements in `src/lib/server/auth.ts`. Credentials are read at
+ * request time from the platform binding first, then from SvelteKit's
+ * dynamic private env. They are never imported from `$env/static`.
  */
 
 export const GOOGLE_STATE_COOKIE = 'elmozza_google_state';
@@ -24,21 +21,50 @@ export type GoogleEnv = {
 	GOOGLE_CLIENT_SECRET?: string;
 };
 
+function firstPresent(...values: Array<string | undefined>) {
+	for (const value of values) {
+		const trimmed = value?.trim();
+		if (trimmed) return trimmed;
+	}
+	return '';
+}
+
+/**
+ * Pages secrets land on `platform.env` after a deploy. Local `.dev.vars` and
+ * some Pages setups surface them through `$env/dynamic/private` instead.
+ * Check both; never log the values.
+ */
+export function googleCredentials(event?: Pick<RequestEvent, 'platform'>): GoogleEnv {
+	const platform = (event?.platform?.env ?? {}) as GoogleEnv;
+	return {
+		GOOGLE_CLIENT_ID: firstPresent(
+			platform.GOOGLE_CLIENT_ID,
+			dynamicEnv.GOOGLE_CLIENT_ID,
+			typeof process !== 'undefined' ? process.env.GOOGLE_CLIENT_ID : undefined
+		),
+		GOOGLE_CLIENT_SECRET: firstPresent(
+			platform.GOOGLE_CLIENT_SECRET,
+			dynamicEnv.GOOGLE_CLIENT_SECRET,
+			typeof process !== 'undefined' ? process.env.GOOGLE_CLIENT_SECRET : undefined
+		)
+	};
+}
+
 export function googleRedirectUri(url: URL) {
 	return `${url.origin}/login/google/callback`;
 }
 
 /**
- * Returns null when the credentials are absent, so the button can be hidden
+ * Returns false when the credentials are absent, so the button can be hidden
  * rather than offering a broken journey.
  */
 export function googleConfigured(event: Pick<RequestEvent, 'platform'>) {
-	const env = (event.platform?.env ?? {}) as GoogleEnv;
+	const env = googleCredentials(event);
 	return Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET);
 }
 
 export function googleClient(event: Pick<RequestEvent, 'platform' | 'url'>) {
-	const env = (event.platform?.env ?? {}) as GoogleEnv;
+	const env = googleCredentials(event);
 	if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
 		throw error(503, 'Google sign-in is not configured on this deployment.');
 	}
