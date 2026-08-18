@@ -8,6 +8,12 @@ export default {
 	async scheduled(controller, env, ctx) {
 		ctx.waitUntil(tick(env));
 		void controller;
+	},
+
+	async fetch() {
+		return new Response(JSON.stringify({ ok: true, worker: 'elmozza-push', cron: '0 * * * *' }), {
+			headers: { 'content-type': 'application/json', 'cache-control': 'no-store' }
+		});
 	}
 };
 

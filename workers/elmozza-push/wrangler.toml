@@ -1,7 +1,7 @@
 name = "elmozza-push"
 main = "src/index.js"
 compatibility_date = "2026-01-01"
-account_id = "bf663b370e0d54d64b50d44f5fb17612"
+account_id = "bf663b378f8431a5daa786a5f536c4fc"
 
 [triggers]
 crons = ["0 * * * *"]
