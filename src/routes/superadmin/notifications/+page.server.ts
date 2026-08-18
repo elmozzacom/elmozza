@@ -32,14 +32,17 @@ export const actions: Actions = {
 		const body = String(form.get('body') ?? '').trim().slice(0, 180);
 		const url = String(form.get('url') ?? '/learn').trim().slice(0, 80) || '/learn';
 		if (!title || !body) return fail(400, { error: 'Title and body are required.' });
-		const listing = await db.prepare('SELECT user_id FROM push_subscriptions').all<{ user_id: number }>();
+		const listing = await db
+			.prepare('SELECT user_id FROM push_subscriptions')
+			.all<{ user_id: number }>();
+		const payload = JSON.stringify({ title, body, url });
 		const stmts = (listing.results ?? []).map((row) =>
 			db
 				.prepare(
-					`INSERT INTO notification_log (user_id, kind, status, created_at)
-					 VALUES (?, 'broadcast', 'queued', datetime('now'))`
+					`INSERT INTO notification_log (user_id, kind, status, created_at, payload)
+					 VALUES (?, 'broadcast', 'queued', datetime('now'), ?)`
 				)
-				.bind(row.user_id)
+				.bind(row.user_id, payload)
 		);
 		if (stmts.length) await db.batch(stmts);
 		await writeAudit(db, {

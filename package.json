@@ -22,6 +22,8 @@
         "d1:superadmin:remote": "wrangler d1 execute elmozza-db --remote --file=./migrations/0004_superadmin.sql",
         "d1:learn:local": "wrangler d1 execute elmozza-db --local --file=./migrations/0005_learning_engine.sql",
         "d1:learn:remote": "wrangler d1 execute elmozza-db --remote --file=./migrations/0005_learning_engine.sql",
+        "d1:push:local": "wrangler d1 execute elmozza-db --local --file=./migrations/0006_notification_payload.sql",
+        "d1:push:remote": "wrangler d1 execute elmozza-db --remote --file=./migrations/0006_notification_payload.sql",
         "seed:ladder": "node scripts/seed-ladder.mjs",
         "seed:ladder:remote": "node scripts/seed-ladder.mjs --remote",
         "drizzle:generate": "drizzle-kit generate",

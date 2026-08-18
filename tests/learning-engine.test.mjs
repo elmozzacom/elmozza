@@ -62,6 +62,7 @@ test('new habit routes exist and stay server-guarded', () => {
 	assert.match(read('migrations/0005_learning_engine.sql'), /user_item_strength/);
 	assert.match(read('static/manifest.webmanifest'), /standalone/);
 	assert.match(read('src/routes/practice/conversation/+page.server.ts'), /AI_CONVERSATION/);
-	assert.match(read('workers/elmozza-push/wrangler.toml'), /0 \* \* \* \*/);
+	assert.match(read('workers/elmozza-push/src/index.js'), /buildPushPayload/);
+	assert.match(read('workers/elmozza-push/wrangler.toml'), /\*\/5 \* \* \* \*/);
 	assert.doesNotMatch(read('migrations/0005_learning_engine.sql'), /DROP TABLE users/i);
 });
