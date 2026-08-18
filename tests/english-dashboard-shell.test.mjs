@@ -55,3 +55,13 @@ test('dashboard load reports whether a lesson was completed today', () => {
   assert.match(source, /doneToday/);
   assert.match(source, /date\(completed_at\) = date\('now'\)/);
 });
+
+test('grammar labels ship in the server HTML, not only after measurement', () => {
+  const source = read('src/lib/components/ExplodedSentence.svelte');
+  // Labels must never be gated behind a measured position: a screen reader and
+  // a crawler have to receive the teaching without running any script.
+  assert.match(source, /sr-breakdown/);
+  assert.match(source, /clip-path: inset\(50%\)/);
+  assert.doesNotMatch(source, /\{#if places\[index\]\}/);
+  assert.match(source, /class:unplaced=\{!places\[index\]\}/);
+});

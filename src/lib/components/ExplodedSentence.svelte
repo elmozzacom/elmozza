@@ -193,17 +193,31 @@
 
 		<div class="annotations" aria-hidden="true">
 			{#each data.fragments as fragment, index}
-				{#if places[index]}
-					<span
-						class="tag"
-						style="left: {places[index].lx}px; top: {places[index].ly}px; --stagger: {index}"
-					>
-						{fragment.label}
-					</span>
-				{/if}
+				<span
+					class="tag"
+					class:unplaced={!places[index]}
+					style="left: {places[index]?.lx ?? 0}px; top: {places[index]?.ly ?? 0}px; --stagger: {index}"
+				>
+					{fragment.label}
+				</span>
 			{/each}
 		</div>
 	</div>
+
+	<!--
+		The diagram is the teaching, so it cannot depend on JavaScript, motion, or
+		sight. The visual layer above is decorative to assistive tech; this list is
+		the real content and ships in the server HTML, fully readable before any
+		script runs.
+	-->
+	<dl class="sr-breakdown">
+		<dt>Sentence</dt>
+		<dd>{data.sentence}</dd>
+		{#each data.fragments as fragment}
+			<dt>{fragment.text}</dt>
+			<dd>{fragment.label}</dd>
+		{/each}
+	</dl>
 {/snippet}
 
 {#if mode === 'scroll'}
@@ -374,6 +388,23 @@
 		color: var(--color-accent-deep);
 		/* Labels resolve only after the fragments have parted. */
 		opacity: clamp(0, calc((var(--p) - 0.42 - var(--stagger) * 0.022) * 7), 1);
+	}
+	/* Present in the server HTML, but never drawn at 0,0 before measurement. */
+	.tag.unplaced {
+		opacity: 0;
+	}
+
+	/* Available to screen readers and to search engines; invisible on screen. */
+	.sr-breakdown {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		padding: 0;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+		border: 0;
 	}
 
 	.note {
