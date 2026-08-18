@@ -201,3 +201,11 @@ test('admin questionnaire views are behind the admin guard', () => {
 	// CSV must resist spreadsheet formula injection.
 	assert.match(csv, /\^\[=\+\\-@/);
 });
+
+test('the landing page card grids actually carry AOS with a stagger', () => {
+	const landing = read('src/lib/components/EnglishLanding.svelte');
+	// Instructed surfaces: curriculum spectrum, placement, testimonials, pricing.
+	assert.ok((landing.match(/data-aos="fade-up"/g) ?? []).length >= 4);
+	assert.match(landing, /data-aos-delay=\{index \* 70\}/);
+	assert.match(landing, /data-aos-delay=\{index \* 90\}/);
+});

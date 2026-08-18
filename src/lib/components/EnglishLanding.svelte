@@ -36,7 +36,7 @@
 
 		<ol class="spectrum">
 			{#each LEVELS as level, index}
-				<li style="--tint: {0.1 + index * 0.2}">
+				<li style="--tint: {0.1 + index * 0.2}" data-aos="fade-up" data-aos-delay={index * 70}>
 					<span class="swatch" aria-hidden="true"></span>
 					<span class="code">{level.code}</span>
 					<span class="name">{level.name}</span>
@@ -55,8 +55,8 @@
 		</header>
 
 		<ol class="placement">
-			{#each PLACEMENT as question}
-				<li>
+			{#each PLACEMENT as question, questionIndex}
+				<li data-aos="fade-up" data-aos-delay={questionIndex * 70}>
 					<p class="prompt">{question.prompt}</p>
 					<div class="options">
 						{#each question.options as option, index}
@@ -94,8 +94,8 @@
 
 	<!-- TESTIMONIALS: pull quotes, no avatars, no stars -->
 	<section class="band quotes">
-		{#each QUOTES as quote}
-			<figure>
+		{#each QUOTES as quote, index}
+			<figure data-aos="fade-up" data-aos-delay={index * 90}>
 				<blockquote>{quote.text}</blockquote>
 				<figcaption class="label-util">{quote.by} · {quote.role}</figcaption>
 			</figure>
@@ -110,8 +110,8 @@
 		</header>
 
 		<div class="tiers">
-			{#each TIERS as tier}
-				<article>
+			{#each TIERS as tier, index}
+				<article data-aos="fade-up" data-aos-delay={index * 90}>
 					<h3>{tier.name}</h3>
 					<p class="price">{tier.price} <span class="label-util">{tier.period}</span></p>
 					<p class="for-whom measure">{tier.forWhom}</p>
