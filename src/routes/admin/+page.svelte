@@ -29,8 +29,14 @@
 <SiteShell user={data.admin}>
 	<div class="admin">
 		<header class="head">
-			<p class="label-util">Administration</p>
-			<h1>Registrants</h1>
+			<div>
+				<p class="label-util">Administration</p>
+				<h1>Registrants</h1>
+			</div>
+			<nav class="tabs" aria-label="Admin sections">
+				<a class="on" href="/admin" aria-current="page">Registrants</a>
+				<a href="/admin/questionnaires">Questionnaires</a>
+			</nav>
 		</header>
 
 		<dl class="stats">
@@ -120,9 +126,30 @@
 		padding: clamp(2.5rem, 7vh, 4rem) clamp(1.25rem, 5vw, 3.5rem) 0;
 	}
 	.head {
-		display: grid;
-		gap: 0.6rem;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 1.25rem;
 		padding-bottom: 2rem;
+	}
+	.tabs {
+		display: flex;
+		gap: 0.35rem;
+	}
+	.tabs a {
+		padding: 0.5rem 1rem;
+		border: 1px solid var(--color-rule);
+		border-radius: 2px;
+		color: var(--color-ink);
+		text-decoration: none;
+		font-size: 0.9rem;
+		font-weight: 600;
+	}
+	.tabs a.on {
+		background: var(--color-accent);
+		border-color: var(--color-accent);
+		color: #fff;
 	}
 	.head h1 {
 		margin: 0;

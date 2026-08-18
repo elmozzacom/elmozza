@@ -29,6 +29,38 @@ export const registrations = sqliteTable('registrations', {
 export type Registration = typeof registrations.$inferSelect;
 export type NewRegistration = typeof registrations.$inferInsert;
 
+/**
+ * The 14-day questionnaire programme.
+ *
+ * Content lives in the database rather than only in code so an editor can
+ * revise a day's wording without a deploy; `scripts/seed.mjs` keeps the two in
+ * step from `src/lib/content/questionnaires.ts`.
+ */
+export const questionnaires = sqliteTable('questionnaires', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	dayNumber: integer('day_number').notNull().unique(),
+	title: text('title').notNull(),
+	focus: text('focus', { enum: ['comfort', 'grammar', 'fluency'] }).notNull().default('comfort'),
+	questions: text('questions').notNull()
+});
+
+/**
+ * One response per user per day, enforced by a unique index in the migration.
+ * A late answer is still recorded against its own day_number; the streak
+ * calculation is what treats a missed calendar day as a break.
+ */
+export const questionnaireResponses = sqliteTable('questionnaire_responses', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id').notNull(),
+	dayNumber: integer('day_number').notNull(),
+	answers: text('answers').notNull(),
+	selfRating: integer('self_rating'),
+	completedAt: text('completed_at').notNull()
+});
+
+export type Questionnaire = typeof questionnaires.$inferSelect;
+export type QuestionnaireResponse = typeof questionnaireResponses.$inferSelect;
+
 export const LEVEL_CODES = ['A1', 'A2', 'B1', 'B2', 'C1'] as const;
 export const PAYMENT_STATES = ['pending', 'paid', 'refunded', 'waived'] as const;
 export type LevelCode = (typeof LEVEL_CODES)[number];

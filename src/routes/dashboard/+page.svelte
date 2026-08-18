@@ -1,5 +1,6 @@
 <script lang="ts">
 	import SiteShell from '$lib/components/SiteShell.svelte';
+	import JourneyCard from '$lib/components/JourneyCard.svelte';
 
 	let { data } = $props();
 
@@ -33,7 +34,7 @@
 
 		<div class="columns">
 			<!-- Dominant element: the resume card -->
-			<section class="resume">
+			<section class="resume" data-aos="fade-up">
 				<p class="label-util">{finished ? 'Course complete' : `Day ${data.nextLesson} of 14`}</p>
 				<h2>{finished ? 'You finished the A1 path.' : data.nextTitle}</h2>
 				{#if !finished}
@@ -48,10 +49,19 @@
 					</span>
 				</div>
 
-				{#if !data.doneToday && !finished}
+				{#if data.justChecked}
+					<p class="checked" role="status">
+						Day {data.justChecked.day} recorded.
+						{#if data.justChecked.of > 0}
+							Vocabulary {data.justChecked.correct}/{data.justChecked.of}.
+						{/if}
+					</p>
+				{:else if !data.doneToday && !finished}
 					<p class="nudge">Nothing recorded today. One lesson keeps the streak.</p>
 				{/if}
 			</section>
+
+			<JourneyCard journey={data.journey} />
 
 			<!-- Skills -->
 			<section class="skills">
@@ -192,6 +202,15 @@
 		background: var(--color-accent-tint);
 		color: var(--color-accent-deep);
 		font-size: var(--text-step--1);
+		border-radius: 2px;
+	}
+	.checked {
+		margin: 0.5rem 0 0;
+		padding: 0.7rem 0.9rem;
+		background: var(--color-accent-tint);
+		color: var(--color-accent-deep);
+		font-size: var(--text-step--1);
+		font-weight: 600;
 		border-radius: 2px;
 	}
 

@@ -16,6 +16,9 @@
         "d1:migrate:remote": "wrangler d1 execute elmozza-db --remote --file=./migrations/0001_auth_dashboard.sql",
         "d1:registrations:local": "wrangler d1 execute elmozza-db --local --file=./migrations/0002_registrations.sql",
         "d1:registrations:remote": "wrangler d1 execute elmozza-db --remote --file=./migrations/0002_registrations.sql",
+        "d1:questionnaires:local": "wrangler d1 execute elmozza-db --local --file=./migrations/0003_questionnaires_google.sql",
+        "d1:questionnaires:remote": "wrangler d1 execute elmozza-db --remote --file=./migrations/0003_questionnaires_google.sql",
+        "drizzle:generate": "drizzle-kit generate",
         "seed": "node scripts/seed.mjs",
         "seed:remote": "node scripts/seed.mjs --remote",
         "test": "node --test tests/*.test.mjs",
@@ -29,6 +32,7 @@
         "@sveltejs/kit": "^2.49.1",
         "@sveltejs/vite-plugin-svelte": "^6.2.1",
         "@tailwindcss/vite": "^4.3.3",
+        "@types/aos": "^3.0.8",
         "daisyui": "^5.5.14",
         "drizzle-kit": "^0.31.10",
         "drizzle-orm": "^0.45.2",
@@ -40,5 +44,9 @@
         "typescript": "^5.9.3",
         "vite": "^7.2.6",
         "wrangler": "^4.57.0"
+    },
+    "dependencies": {
+        "aos": "^2.3.4",
+        "arctic": "^3.7.0"
     }
 }

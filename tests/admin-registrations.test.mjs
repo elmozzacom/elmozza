@@ -69,8 +69,9 @@ test('seed writes locally by default and cannot silently overwrite live rows', (
   // Seeded passwords use the same PBKDF2 parameters as the running auth code.
   assert.match(seed, /iterations: 100000/);
   assert.match(seed, /SHA-256/);
-  // Ten registrants plus one admin.
-  assert.equal((seed.match(/@example\.com/g) ?? []).length, 10);
+  // Ten registrants, plus three demo students for the questionnaire dashboards.
+  assert.equal((seed.match(/@example\.com/g) ?? []).length, 13);
+  assert.equal((seed.match(/_demo'/g) ?? []).length, 3);
   assert.match(seed, /'admin'/);
 });
 

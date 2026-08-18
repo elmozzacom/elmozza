@@ -1,7 +1,8 @@
 <script lang="ts">
 	import AuthPanel from '$lib/components/AuthPanel.svelte';
+	import GoogleButton from '$lib/components/GoogleButton.svelte';
 
-	let { form }: { form?: any } = $props();
+	let { data, form }: { data: any; form?: any } = $props();
 </script>
 
 <svelte:head>
@@ -10,6 +11,10 @@
 </svelte:head>
 
 <AuthPanel title="Start free" lede="Keep your streak, your progress, and your place in the course.">
+	{#if data.googleEnabled}
+		<GoogleButton next="/dashboard" />
+	{/if}
+
 	<form method="POST">
 		<label>
 			Username

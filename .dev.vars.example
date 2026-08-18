@@ -1,0 +1,11 @@
+# Google OAuth — local development only.
+#
+# Copy to `.dev.vars` and fill in from Google Cloud Console. `.dev.vars` is
+# gitignored and must never be committed. In production these are set as
+# Cloudflare Pages environment variables instead, not from this file.
+#
+#   wrangler pages secret put GOOGLE_CLIENT_ID --project-name elmozza
+#   wrangler pages secret put GOOGLE_CLIENT_SECRET --project-name elmozza
+
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""

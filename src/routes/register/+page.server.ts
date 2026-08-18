@@ -1,10 +1,11 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createSession, dbOrError, hashPassword, normalize, rateLimitKey, rawFormValue, safeRedirect, validateCredentials } from '$lib/server/auth';
+import { googleConfigured } from '$lib/server/google';
 
-export const load: PageServerLoad = async ({ locals }) => {
-	if (locals.user) throw redirect(303, '/dashboard');
-	return {};
+export const load: PageServerLoad = async (event) => {
+	if (event.locals.user) throw redirect(303, '/dashboard');
+	return { googleEnabled: googleConfigured(event) };
 };
 
 export const actions: Actions = {

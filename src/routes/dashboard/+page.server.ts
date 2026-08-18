@@ -1,5 +1,6 @@
 import { requireUser } from '$lib/server/auth';
 import { dailyCoachLessons } from '$lib/content/daily-coach';
+import { buildJourney, jakartaDate, loadResponses } from '$lib/server/journey';
 import type { PageServerLoad } from './$types';
 
 /**
@@ -15,12 +16,13 @@ const SKILL_OF_DAY: Record<number, 'listening' | 'speaking' | 'reading' | 'writi
 
 const SKILL_TOTALS = { listening: 4, speaking: 4, reading: 3, writing: 3 } as const;
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, url }) => {
 	const user = requireUser(locals.user);
 	const db = locals.db;
 	const total_xp = user.total_xp;
 	let completedDays: number[] = [];
 	let doneToday = false;
+	let journey = buildJourney([], jakartaDate());
 
 	if (db) {
 		const { results } = await db
@@ -40,6 +42,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 			.bind(user.id)
 			.first<{ total: number }>();
 		doneToday = Number(today?.total ?? 0) > 0;
+
+		journey = buildJourney(await loadResponses(db, user.id), jakartaDate());
 	}
 
 	const completedSet = new Set(completedDays);
@@ -75,13 +79,26 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 	const upcoming = lessons.filter((lesson) => lesson.status !== 'completed').slice(0, 4);
 
+	// The streak shown is the questionnaire streak, recomputed from real
+	// check-ins rather than trusted from the stored column.
+	const checkedParam = Number(url.searchParams.get('checked'));
+	const justChecked = Number.isInteger(checkedParam) && checkedParam >= 1 && checkedParam <= 14
+		? {
+				day: checkedParam,
+				correct: Number(url.searchParams.get('correct')) || 0,
+				of: Number(url.searchParams.get('of')) || 0
+			}
+		: null;
+
 	return {
-		user: { ...user, total_xp },
+		user: { ...user, total_xp, current_streak: journey.streak },
 		completed,
 		doneToday,
 		level,
 		skills,
 		upcoming,
+		journey,
+		justChecked,
 		progress: Math.round((completed / 14) * 100),
 		nextLesson,
 		nextTitle: next?.title ?? 'Greeting and Introduction',

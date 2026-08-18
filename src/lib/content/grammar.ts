@@ -55,6 +55,21 @@ export const LESSON_EXAMPLE: ExplodedSentence = {
 };
 
 /**
+ * The completion moment for day 14. It reuses the signature pattern rather than
+ * introducing a second celebration language — the sentence assembles instead of
+ * exploding, and there is deliberately no confetti.
+ */
+export const COMPLETION: ExplodedSentence = {
+	id: 'completion',
+	sentence: 'You made it.',
+	fragments: [
+		{ text: 'You', label: 'Subject · you', dx: -6.4, dy: -3.8, layer: 1, space: true },
+		{ text: 'made', label: 'Main verb · past simple', dx: 0, dy: -6.2, layer: 2, space: true },
+		{ text: 'it.', label: 'Object · the fourteen days', dx: 6.8, dy: -2.4, layer: 3 }
+	]
+};
+
+/**
  * The grammar note the diagram is teaching. Shown as prose so the lesson
  * still teaches when motion is off and when the reader prefers text.
  */

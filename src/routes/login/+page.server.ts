@@ -1,12 +1,17 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createSession, dbOrError, normalize, rateLimitKey, rawFormValue, safeRedirect, safeUser, verifyPassword } from '$lib/server/auth';
+import { googleConfigured } from '$lib/server/google';
 
 const GENERIC_ERROR = 'Email atau password tidak valid.';
 
-export const load: PageServerLoad = async ({ locals, url }) => {
-	if (locals.user) throw redirect(303, '/dashboard');
-	return { next: safeRedirect(url.searchParams.get('next')) };
+export const load: PageServerLoad = async (event) => {
+	if (event.locals.user) throw redirect(303, '/dashboard');
+	return {
+		next: safeRedirect(event.url.searchParams.get('next')),
+		googleEnabled: googleConfigured(event),
+		googleError: event.url.searchParams.get('google') ?? ''
+	};
 };
 
 export const actions: Actions = {
