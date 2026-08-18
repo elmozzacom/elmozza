@@ -106,6 +106,14 @@ export const actions: Actions = {
 			.run();
 
 		const score = scoreChoices(questionnaire.questions, answers);
+		if (day === 14) {
+			await db
+				.prepare(
+					`INSERT OR IGNORE INTO user_badges (user_id, badge_id, earned_at) VALUES (?, 'journey-14', datetime('now'))`
+				)
+				.bind(user.id)
+				.run();
+		}
 		throw redirect(303, `/dashboard?checked=${day}&correct=${score.correct}&of=${score.total}`);
 	}
 };

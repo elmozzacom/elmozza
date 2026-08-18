@@ -6,7 +6,7 @@
 		children
 	}: {
 		desk: { username: string; role: string };
-		active?: 'overview' | 'accounts' | 'logs';
+		active?: 'overview' | 'accounts' | 'logs' | 'notifications';
 		heading: string;
 		children: import('svelte').Snippet;
 	} = $props();
@@ -27,6 +27,7 @@
 			<a class:on={active === 'overview'} href="/superadmin">Overview</a>
 			<a class:on={active === 'accounts'} href="/superadmin/accounts">Accounts</a>
 			<a class:on={active === 'logs'} href="/superadmin/logs">Audit log</a>
+			<a class:on={active === 'notifications'} href="/superadmin/notifications">Notifications</a>
 			<a href="/admin">Admin desk</a>
 		</nav>
 	</header>

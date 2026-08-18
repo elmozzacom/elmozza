@@ -3,8 +3,9 @@
 	import 'aos/dist/aos.css';
 	import favicon from '$lib/assets/favicon.svg';
 	import { onMount } from 'svelte';
+	import PwaBoot from '$lib/components/PwaBoot.svelte';
 
-	let { children } = $props();
+	let { children, data } = $props();
 
 	/**
 	 * AOS is the quiet layer only. The exploded sentence stays hand-built: it is
@@ -33,9 +34,11 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<link rel="manifest" href="/manifest.webmanifest" />
 	<meta name="theme-color" content="#FBFAF7" />
 </svelte:head>
 
+<PwaBoot firstLesson={data.pwa.firstLesson} vapidPublic={data.pwa.vapidPublic} signedIn={data.pwa.signedIn} />
 {@render children()}
 
 <style>

@@ -1,7 +1,22 @@
 export const ENGLISH_HOST = 'english.elmozza.com';
 export const BRAND_HOSTS = new Set(['elmozza.com', 'www.elmozza.com']);
 
-const APP_PATHS = ['/daily-coach', '/dashboard', '/login', '/register', '/lesson', '/logout', '/admin', '/superadmin', '/demo'];
+const APP_PATHS = [
+	'/daily-coach',
+	'/dashboard',
+	'/login',
+	'/register',
+	'/lesson',
+	'/logout',
+	'/admin',
+	'/superadmin',
+	'/demo',
+	'/learn',
+	'/onboarding',
+	'/practice',
+	'/profile',
+	'/settings'
+];
 
 export function hostnameOf(url: URL) {
 	return url.hostname.toLowerCase();

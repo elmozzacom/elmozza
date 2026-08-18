@@ -9,6 +9,10 @@ type Env = {
 	GOOGLE_CLIENT_ID?: string;
 	GOOGLE_CLIENT_SECRET?: string;
 	SUPERADMIN_EMAIL?: string;
+	VAPID_PUBLIC_KEY?: string;
+	VAPID_PRIVATE_KEY?: string;
+	AI_CONVERSATION?: string;
+	AI?: unknown;
 };
 
 declare global {

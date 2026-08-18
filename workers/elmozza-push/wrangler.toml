@@ -1,0 +1,14 @@
+name = "elmozza-push"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+account_id = "bf663b370e0d54d64b50d44f5fb17612"
+
+[triggers]
+crons = ["0 * * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "elmozza-db"
+database_id = "75491b81-a886-41cf-80e7-66156befcd4e"
+
+# Secrets: VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY, VAPID_SUBJECT

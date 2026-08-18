@@ -1,9 +1,15 @@
 <script lang="ts">
 	let {
 		user = null,
+		streak = null,
+		gems = null,
+		hearts = null,
 		children
 	}: {
 		user?: { username: string; role: string } | null;
+		streak?: number | null;
+		gems?: number | null;
+		hearts?: number | null;
 		children: import('svelte').Snippet;
 	} = $props();
 
@@ -27,9 +33,13 @@
 		<a href="/#curriculum">Curriculum</a>
 		<a href="/#pricing">Pricing</a>
 		{#if user}
+			<a href="/learn">Learn</a>
 			<a href="/dashboard">Dashboard</a>
 			{#if isAdmin}<a href="/admin">Admin</a>{/if}
 			{#if isSuper}<a href="/superadmin">Superadmin</a>{/if}
+			{#if streak != null}
+				<span class="flame" title="Streak">{streak}d</span>
+			{/if}
 		{:else}
 			<a href="/login">Sign in</a>
 			<a class="cta" href="/register">Start free</a>
@@ -53,6 +63,7 @@
 		<a href="/#curriculum" onclick={() => (open = false)}>Curriculum</a>
 		<a href="/#pricing" onclick={() => (open = false)}>Pricing</a>
 		{#if user}
+			<a href="/learn" onclick={() => (open = false)}>Learn</a>
 			<a href="/dashboard" onclick={() => (open = false)}>Dashboard</a>
 			{#if isAdmin}<a href="/admin" onclick={() => (open = false)}>Admin</a>{/if}
 			{#if isSuper}<a href="/superadmin" onclick={() => (open = false)}>Superadmin</a>{/if}
@@ -137,12 +148,22 @@
 		gap: 1.6rem;
 		font-size: 0.94rem;
 	}
+	.flame {
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		letter-spacing: 0.04em;
+		padding: 0.2rem 0.5rem;
+		border: 1px solid var(--color-accent);
+		color: var(--color-accent-deep);
+		border-radius: 999px;
+	}
 	.links a,
 	.sheet a,
+	.sheet button,
 	.foot-links a {
 		color: var(--color-ink);
 		text-decoration: none;
-		text-underline-offset: 0.32em;
+		font-weight: 600;
 	}
 	.links a:hover,
 	.foot-links a:hover {
