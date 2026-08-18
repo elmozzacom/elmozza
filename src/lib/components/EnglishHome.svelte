@@ -258,7 +258,7 @@
 
 	h1 {
 		max-width: 780px;
-		font: 700 clamp(2.35rem, 5.6vw, 4.55rem) / 1.02 Georgia, serif;
+		font: 700 clamp(1.88rem, 4.48vw, 3.64rem) / 1.02 Georgia, serif;
 		margin: 0 0 18px;
 	}
 
@@ -420,7 +420,7 @@
 		}
 
 		h1 {
-			font-size: clamp(2rem, 12vw, 3rem);
+			font-size: clamp(1.6rem, 9.6vw, 2.4rem);
 			overflow-wrap: anywhere;
 		}
 

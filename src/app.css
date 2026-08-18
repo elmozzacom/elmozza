@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+
+/*
+ * Elmozza English — design tokens
+ * Gallery daylight. Warm paper, ink, one ultramarine accent.
+ * No dark sections. No decorative gradients. No glassmorphism.
+ */
+
+@theme {
+	/* Surfaces */
+	--color-paper: #fbfaf7;
+	--color-paper-raised: #ffffff;
+
+	/* Text */
+	--color-ink: #1c1b18;
+	--color-ink-muted: #6b6659;
+
+	/* Structure */
+	--color-rule: #e3e0d8;
+
+	/* The single accent: deep ultramarine */
+	--color-accent: #1b36c4;
+	--color-accent-deep: #132894;
+	--color-accent-tint: #edf0fe;
+	--color-warn-tint: #fbede7;
+	--color-warn-deep: #8c3d22;
+	--color-good-deep: #245c3c;
+
+	/* Type stacks — system only, zero font requests */
+	--font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+	--font-body: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+
+	/* Type scale — base 17px */
+	--text-step--1: 0.833rem;
+	--text-step-0: 1rem;
+	--text-step-1: 1.333rem;
+	--text-step-2: 1.777rem;
+	--text-step-3: 2.369rem;
+	--text-step-4: 3.157rem;
+	--text-step-5: 4.209rem;
+}
+
+@layer base {
+	html {
+		font-size: 17px;
+		scroll-behavior: smooth;
+		-webkit-text-size-adjust: 100%;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		html {
+			scroll-behavior: auto;
+		}
+	}
+
+	body {
+		margin: 0;
+		background: var(--color-paper);
+		color: var(--color-ink);
+		font-family: var(--font-body);
+		font-size: var(--text-step-0);
+		line-height: 1.6;
+		-webkit-font-smoothing: antialiased;
+		overflow-x: hidden;
+	}
+
+	h1,
+	h2,
+	h3 {
+		font-family: var(--font-display);
+		font-weight: 600;
+		letter-spacing: -0.022em;
+		line-height: 1.08;
+		text-wrap: balance;
+	}
+
+	/* Visible keyboard focus everywhere — never removed, only styled. */
+	:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: 3px;
+		border-radius: 2px;
+	}
+
+	::selection {
+		background: var(--color-accent-tint);
+		color: var(--color-accent-deep);
+	}
+}
+
+@utility rule-top {
+	border-top: 1px solid var(--color-rule);
+}
+
+@utility label-util {
+	font-family: var(--font-mono);
+	font-size: 0.66rem;
+	font-weight: 500;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--color-ink-muted);
+}
+
+@utility measure {
+	max-width: 62ch;
+}

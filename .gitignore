@@ -18,6 +18,12 @@ Thumbs.db
 !.env.example
 !.env.test
 
+# Tooling scratch — Lighthouse writes a Windows-style temp dir when run from WSL
+C:\\*
+lighthouse.*
+/test-results
+
+
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*

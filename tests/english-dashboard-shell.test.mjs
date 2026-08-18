@@ -15,42 +15,39 @@ test('dashboard load builds a 14-day English Daily Coach track from server progr
   assert.doesNotMatch(source, /question\.answer|correct_answer/);
 });
 
-test('dashboard shell is a professional English command center with real member stats', () => {
+// The dashboard was rebuilt as a bright editorial spread. The dark floating dock
+// it used to carry is gone on purpose: the design language now forbids dark
+// surfaces, so these tests assert the replacement rather than the old shell.
+test('dashboard is a bright editorial spread built on real member stats', () => {
   const source = read('src/routes/dashboard/+page.svelte');
-  assert.match(source, /English Daily Coach/);
-  assert.match(source, /command-center|dashboard-shell/);
+  assert.match(source, /SiteShell/);
+  assert.match(source, /running-head/);
   assert.match(source, /total_xp/i);
   assert.match(source, /current_streak/i);
-  assert.match(source, /data\.lessons/);
-  assert.match(source, /Day \{lesson\.day\}/);
-  assert.match(source, /progress-ring/);
-  assert.match(source, /journey-strip/);
+  assert.match(source, /data\.upcoming/);
+  assert.match(source, /data\.skills/);
   assert.match(source, /prefers-reduced-motion/);
-  assert.match(source, /overflow-x:\s*hidden/i);
-  assert.match(source, /min-width:\s*0/i);
+  // No dark section anywhere in the new language.
+  assert.doesNotMatch(source, /fly-dock|#11150f|rgba\(14, 18, 13/i);
   assert.doesNotMatch(source, /Cloudflare|Workers|D1|SvelteKit|wrangler/i);
 });
 
-test('dashboard has header menu, mobile sidebar, and floating dock', () => {
-  const page = read('src/routes/dashboard/+page.svelte');
-  const shell = read('src/lib/components/EnglishAppShell.svelte');
-  assert.match(page, /EnglishAppShell/);
-  assert.match(page, /alertStreak/);
-  assert.match(shell, /topbar/);
-  assert.match(shell, /sidebar/);
-  assert.match(shell, /fly-dock/);
-  assert.match(shell, /prefers-reduced-motion/);
+test('dashboard carries one dominant resume card and four skill rings', () => {
+  const source = read('src/routes/dashboard/+page.svelte');
+  assert.match(source, /class="resume"/);
+  assert.match(source, /grid-template-columns:\s*2fr 1fr/);
+  assert.match(source, /stroke-dasharray=\{RING\}/);
+  assert.match(source, /stroke-dashoffset=/);
+  assert.match(source, /Continue|Begin/);
 });
 
-test('floating dock auto-hides, respects safe area, and shows a streak badge', () => {
-  const shell = read('src/lib/components/EnglishAppShell.svelte');
-  assert.match(shell, /tucked/);
-  assert.match(shell, /env\(safe-area-inset-bottom/);
-  assert.match(shell, /\.dot::after/);
-  assert.match(shell, /scale\(0\.94\)/);
-  assert.match(shell, /<svg viewBox="0 0 24 24">/);
-  assert.match(shell, /requestAnimationFrame/);
-  assert.match(shell, /removeEventListener\('scroll'/);
+test('site shell provides header navigation, a mobile sheet, and a skip link', () => {
+  const shell = read('src/lib/components/SiteShell.svelte');
+  assert.match(shell, /class="skip"/);
+  assert.match(shell, /class="masthead"/);
+  assert.match(shell, /class="sheet"/);
+  assert.match(shell, /aria-expanded=\{open\}/);
+  assert.match(shell, /aria-label="Primary"/);
 });
 
 test('dashboard load reports whether a lesson was completed today', () => {

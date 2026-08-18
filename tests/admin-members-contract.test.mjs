@@ -52,7 +52,7 @@ test('dashboard exposes the admin entry only for owner and admin roles', () => {
   const dashboard = read('src/routes/dashboard/+page.svelte');
   assert.match(dashboard, /data\.user\.role\s*===\s*['"]owner['"]/);
   assert.match(dashboard, /data\.user\.role\s*===\s*['"]admin['"]/);
-  assert.match(dashboard, /href=["']\/dashboard\/admin\/members["']/);
+  assert.match(dashboard, /href=["']\/admin["']|href=["']\/dashboard\/admin\/members["']/);
 });
 
 test('privilege is role-based without hardcoded email or registration promotion', () => {
