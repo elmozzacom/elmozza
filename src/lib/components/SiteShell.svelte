@@ -8,7 +8,10 @@
 	} = $props();
 
 	let open = $state(false);
-	const isAdmin = $derived(user?.role === 'admin' || user?.role === 'owner');
+	const isAdmin = $derived(
+		user?.role === 'admin' || user?.role === 'owner' || user?.role === 'superadmin'
+	);
+	const isSuper = $derived(user?.role === 'superadmin');
 </script>
 
 <a class="skip" href="#main">Skip to content</a>
@@ -26,6 +29,7 @@
 		{#if user}
 			<a href="/dashboard">Dashboard</a>
 			{#if isAdmin}<a href="/admin">Admin</a>{/if}
+			{#if isSuper}<a href="/superadmin">Superadmin</a>{/if}
 		{:else}
 			<a href="/login">Sign in</a>
 			<a class="cta" href="/register">Start free</a>
@@ -51,6 +55,7 @@
 		{#if user}
 			<a href="/dashboard" onclick={() => (open = false)}>Dashboard</a>
 			{#if isAdmin}<a href="/admin" onclick={() => (open = false)}>Admin</a>{/if}
+			{#if isSuper}<a href="/superadmin" onclick={() => (open = false)}>Superadmin</a>{/if}
 			<form method="POST" action="/logout"><button type="submit">Sign out</button></form>
 		{:else}
 			<a href="/login" onclick={() => (open = false)}>Sign in</a>

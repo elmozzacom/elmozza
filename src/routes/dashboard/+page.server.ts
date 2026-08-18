@@ -1,6 +1,6 @@
 import { requireUser } from '$lib/server/auth';
 import { dailyCoachLessons } from '$lib/content/daily-coach';
-import { buildJourney, jakartaDate, loadResponses } from '$lib/server/journey';
+import { buildJourney, jakartaDate, loadMercyDay, loadResponses } from '$lib/server/journey';
 import type { PageServerLoad } from './$types';
 
 /**
@@ -43,7 +43,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			.first<{ total: number }>();
 		doneToday = Number(today?.total ?? 0) > 0;
 
-		journey = buildJourney(await loadResponses(db, user.id), jakartaDate());
+		journey = buildJourney(await loadResponses(db, user.id), jakartaDate(), await loadMercyDay(db, user.id));
 	}
 
 	const completedSet = new Set(completedDays);
@@ -99,6 +99,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		upcoming,
 		journey,
 		justChecked,
+		notice: url.searchParams.get('notice') === 'superadmin' ? 'superadmin' : '',
 		progress: Math.round((completed / 14) * 100),
 		nextLesson,
 		nextTitle: next?.title ?? 'Greeting and Introduction',

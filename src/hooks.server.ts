@@ -2,6 +2,7 @@ import { dev } from '$app/environment';
 import type { Handle } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { SESSION_COOKIE, safeUser } from '$lib/server/auth';
+import { ensureSuperadminSeat } from '$lib/server/superadmin';
 import { englishUrl, isAppPath, isBrandHost } from '$lib/hosts';
 
 const SECURITY_HEADERS = {
@@ -40,6 +41,9 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 			event.locals.user = safeUser(row);
 			if (!event.locals.user) event.cookies.delete(SESSION_COOKIE, { path: '/' });
+			else if (await ensureSuperadminSeat(db, event.locals.user, event)) {
+				event.locals.user = { ...event.locals.user, role: 'superadmin' };
+			}
 		} catch {
 			event.locals.user = null;
 		}

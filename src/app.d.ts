@@ -8,6 +8,7 @@ type Env = {
 	DB: D1Database;
 	GOOGLE_CLIENT_ID?: string;
 	GOOGLE_CLIENT_SECRET?: string;
+	SUPERADMIN_EMAIL?: string;
 };
 
 declare global {

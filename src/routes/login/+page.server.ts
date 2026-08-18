@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { createSession, dbOrError, normalize, rateLimitKey, rawFormValue, safeRedirect, safeUser, verifyPassword } from '$lib/server/auth';
 import { googleConfigured } from '$lib/server/google';
+import { ensureSuperadminSeat } from '$lib/server/superadmin';
 
 const GENERIC_ERROR = 'Email atau password tidak valid.';
 
@@ -15,7 +16,8 @@ export const load: PageServerLoad = async (event) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, locals, cookies, getClientAddress }) => {
+	default: async (event) => {
+		const { request, locals, cookies, getClientAddress } = event;
 		const form = await request.formData();
 		const identifier = normalize(form.get('identifier')).toLowerCase();
 		const password = rawFormValue(form.get('password'));
@@ -62,6 +64,7 @@ export const actions: Actions = {
 			db.prepare("UPDATE users SET last_login = datetime('now') WHERE id = ?").bind(user.id),
 			db.prepare('DELETE FROM login_attempts WHERE attempt_key = ?').bind(identifierKey)
 		]);
+		await ensureSuperadminSeat(db, user, event);
 		await createSession(db, user.id, cookies);
 		throw redirect(303, next);
 	}

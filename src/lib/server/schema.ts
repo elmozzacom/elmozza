@@ -61,6 +61,23 @@ export const questionnaireResponses = sqliteTable('questionnaire_responses', {
 export type Questionnaire = typeof questionnaires.$inferSelect;
 export type QuestionnaireResponse = typeof questionnaireResponses.$inferSelect;
 
+export const auditLogs = sqliteTable('audit_logs', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	actorId: integer('actor_id'),
+	action: text('action').notNull(),
+	targetId: integer('target_id'),
+	detail: text('detail'),
+	createdAt: text('created_at').notNull()
+});
+
+export const mercyUnlocks = sqliteTable('mercy_unlocks', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	userId: integer('user_id').notNull(),
+	dayNumber: integer('day_number').notNull(),
+	actorId: integer('actor_id'),
+	grantedAt: text('granted_at').notNull()
+});
+
 export const LEVEL_CODES = ['A1', 'A2', 'B1', 'B2', 'C1'] as const;
 export const PAYMENT_STATES = ['pending', 'paid', 'refunded', 'waived'] as const;
 export type LevelCode = (typeof LEVEL_CODES)[number];

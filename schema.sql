@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT NOT NULL UNIQUE,
   email TEXT NOT NULL UNIQUE,
   password_hash TEXT,
-  role TEXT NOT NULL DEFAULT 'learner' CHECK (role IN ('owner', 'admin', 'editor', 'reviewer', 'learner')),
+  role TEXT NOT NULL DEFAULT 'learner' CHECK (role IN ('superadmin', 'owner', 'admin', 'editor', 'reviewer', 'learner')),
   current_streak INTEGER NOT NULL DEFAULT 0,
   total_xp INTEGER NOT NULL DEFAULT 0,
   last_login TEXT DEFAULT CURRENT_TIMESTAMP,

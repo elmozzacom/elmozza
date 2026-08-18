@@ -180,6 +180,12 @@ for (const student of STUDENTS) {
 	}
 }
 
+// Promote the bound mailbox if it already exists. Never invent a password
+// account for it — that would collide with the real Google sign-in.
+lines.push(
+	`UPDATE users SET role = 'superadmin' WHERE lower(email) = lower(${quote('hendrychristiono2022@gmail.com')}) AND role != 'superadmin';`
+);
+
 const dir = mkdtempSync(join(tmpdir(), 'elmozza-seed-'));
 const file = join(dir, 'seed.sql');
 writeFileSync(file, lines.join('\n\n'), 'utf8');

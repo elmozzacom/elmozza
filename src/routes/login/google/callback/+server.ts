@@ -1,6 +1,7 @@
 import { error, redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { createSession, dbOrError, safeRedirect } from '$lib/server/auth';
+import { ensureSuperadminSeat } from '$lib/server/superadmin';
 import {
 	GOOGLE_NEXT_COOKIE,
 	GOOGLE_STATE_COOKIE,
@@ -110,6 +111,12 @@ export const GET: RequestHandler = async (event) => {
 	}
 
 	if (!userId) throw error(500, 'Could not complete Google sign-in.');
+
+	const seated = await db
+		.prepare('SELECT id, email, role FROM users WHERE id = ?')
+		.bind(userId)
+		.first<{ id: number; email: string; role: string }>();
+	if (seated) await ensureSuperadminSeat(db, seated, event);
 
 	await db.prepare("UPDATE users SET last_login = datetime('now') WHERE id = ?").bind(userId).run();
 	await createSession(db, userId, cookies);

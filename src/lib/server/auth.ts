@@ -9,12 +9,12 @@ export type AuthUser = {
 	id: number;
 	username: string;
 	email: string;
-	role: 'owner' | 'admin' | 'editor' | 'reviewer' | 'learner';
+	role: 'superadmin' | 'owner' | 'admin' | 'editor' | 'reviewer' | 'learner';
 	total_xp: number;
 	current_streak: number;
 };
 
-const ROLES: AuthUser['role'][] = ['owner', 'admin', 'editor', 'reviewer', 'learner'];
+const ROLES: AuthUser['role'][] = ['superadmin', 'owner', 'admin', 'editor', 'reviewer', 'learner'];
 const encoder = new TextEncoder();
 const toHex = (bytes: Uint8Array) => Array.from(bytes, (value) => value.toString(16).padStart(2, '0')).join('');
 const fromHex = (value: string) => new Uint8Array(value.match(/.{1,2}/g)?.map((item) => Number.parseInt(item, 16)) ?? []);
@@ -90,7 +90,7 @@ export function requireUser(user: AuthUser | null) {
 
 export function requireAdmin(user: AuthUser | null) {
 	const member = requireUser(user);
-	if (!['owner', 'admin'].includes(member.role)) throw error(403, 'Akses admin diperlukan.');
+	if (!['superadmin', 'owner', 'admin'].includes(member.role)) throw error(403, 'Akses admin diperlukan.');
 	return member;
 }
 

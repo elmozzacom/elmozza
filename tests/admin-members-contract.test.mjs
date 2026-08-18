@@ -16,7 +16,7 @@ test('member list is protected by the server-side admin guard', () => {
 
   const auth = read('src/lib/server/auth.ts');
   assert.match(auth, /requireAdmin[\s\S]*requireUser\(user\)/);
-  assert.match(auth, /\['owner', 'admin'\]\.includes\(member\.role\)/);
+  assert.match(auth, /\['superadmin', 'owner', 'admin'\]\.includes\(member\.role\)/);
   assert.match(auth, /error\(403/);
   assert.match(auth, /requireUser[\s\S]*redirect\(303, '\/login'\)/);
 });

@@ -154,3 +154,12 @@ test('free text is bounded so one paste cannot fill the row', () => {
 	const out = J.validateAnswers(questions, new Map([['t', huge]]));
 	assert.ok(String(out.answers.t).length <= 2000);
 });
+
+test('a mercy unlock opens the next day on the same Jakarta date', () => {
+	const rows = [{ day_number: 1, completed_at: '2026-03-03 02:00:00', self_rating: 4 }];
+	const locked = J.buildJourney(rows, '2026-03-03');
+	assert.equal(locked.currentDay, null);
+	const opened = J.buildJourney(rows, '2026-03-03', 2);
+	assert.equal(opened.currentDay, 2);
+	assert.equal(opened.days[1].status, 'available');
+});

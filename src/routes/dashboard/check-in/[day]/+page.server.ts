@@ -5,6 +5,7 @@ import { getQuestionnaire, TOTAL_DAYS } from '$lib/content/questionnaires';
 import {
 	buildJourney,
 	jakartaDate,
+	loadMercyDay,
 	loadResponses,
 	scoreChoices,
 	validateAnswers
@@ -21,7 +22,7 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 	if (!questionnaire) throw error(404, 'Day not found.');
 
 	const rows = await loadResponses(db, user.id);
-	const journey = buildJourney(rows, jakartaDate());
+	const journey = buildJourney(rows, jakartaDate(), await loadMercyDay(db, user.id));
 	const existing = rows.find((row) => row.day_number === day);
 
 	// A completed day is readable but never re-answerable; a locked day is not
@@ -66,7 +67,7 @@ export const actions: Actions = {
 		// permission to write: a form left open overnight, or a replayed POST,
 		// must not slip past the gate.
 		const rows = await loadResponses(db, user.id);
-		const journey = buildJourney(rows, jakartaDate());
+		const journey = buildJourney(rows, jakartaDate(), await loadMercyDay(db, user.id));
 		if (journey.currentDay !== day) {
 			return fail(409, { locked: true, message: 'This day is not open right now.' });
 		}
@@ -98,7 +99,7 @@ export const actions: Actions = {
 
 		// The check-in feeds the existing streak counter the dashboard shows.
 		const fresh = await loadResponses(db, user.id);
-		const updated = buildJourney(fresh, jakartaDate());
+		const updated = buildJourney(fresh, jakartaDate(), await loadMercyDay(db, user.id));
 		await db
 			.prepare('UPDATE users SET current_streak = ? WHERE id = ?')
 			.bind(updated.streak, user.id)

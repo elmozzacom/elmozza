@@ -32,6 +32,10 @@
 			</dl>
 		</header>
 
+		{#if data.notice === 'superadmin'}
+			<p class="nudge" role="status">That desk is reserved. Your own dashboard is here.</p>
+		{/if}
+
 		<div class="columns">
 			<!-- Dominant element: the resume card -->
 			<section class="resume" data-aos="fade-up">

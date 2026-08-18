@@ -54,7 +54,11 @@ export type Journey = {
  * moved on. Missed days are not skipped: the learner simply resumes at the
  * lowest unanswered day, and the streak — not the sequence — is what breaks.
  */
-export function buildJourney(rows: ResponseRow[], today = jakartaDate()): Journey {
+export function buildJourney(
+	rows: ResponseRow[],
+	today = jakartaDate(),
+	mercyDay: number | null = null
+): Journey {
 	const byDay = new Map<number, ResponseRow>();
 	for (const row of rows) byDay.set(row.day_number, row);
 
@@ -72,7 +76,7 @@ export function buildJourney(rows: ResponseRow[], today = jakartaDate()): Journe
 	const previousDate = previous ? jakartaDateOf(previous.completed_at) : null;
 
 	// Same Jakarta day as the previous answer means the next day is not open yet.
-	const waitingForTomorrow = !finished && previousDate !== null && previousDate === today;
+	const waitingForTomorrow = !finished && previousDate !== null && previousDate === today && mercyDay !== nextUnanswered;
 	const currentDay = finished || waitingForTomorrow ? null : nextUnanswered;
 
 	const days: JourneyDay[] = QUESTIONNAIRES.map((item) => {
@@ -202,4 +206,13 @@ export async function loadResponses(db: D1Database, userId: number): Promise<Res
 		.bind(userId)
 		.all<ResponseRow>();
 	return results ?? [];
+}
+
+export async function loadMercyDay(db: D1Database, userId: number): Promise<number | null> {
+	const row = await db
+		.prepare('SELECT day_number FROM mercy_unlocks WHERE user_id = ? ORDER BY day_number')
+		.bind(userId)
+		.all<{ day_number: number }>();
+	const days = (row.results ?? []).map((item) => item.day_number);
+	return days.length > 0 ? days[days.length - 1] : null;
 }
