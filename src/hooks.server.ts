@@ -5,10 +5,10 @@ import { SESSION_COOKIE, safeUser } from '$lib/server/auth';
 import { englishUrl, isAppPath, isBrandHost } from '$lib/hosts';
 
 const SECURITY_HEADERS = {
-	'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+	'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
 	'x-content-type-options': 'nosniff',
 	'referrer-policy': 'strict-origin-when-cross-origin',
-	'permissions-policy': 'camera=(), microphone=(), geolocation=()'
+	'permissions-policy': 'camera=(), microphone=(self), geolocation=()'
 };
 
 export const handle: Handle = async ({ event, resolve }) => {

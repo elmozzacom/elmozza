@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { dailyCoachLessons, type DailyCoachLesson } from '$lib/content/daily-coach';
+	import DialoguePlayer from '$lib/components/DialoguePlayer.svelte';
+	import SpeakButton from '$lib/components/SpeakButton.svelte';
+	import ShadowPractice from '$lib/components/ShadowPractice.svelte';
 
 	export let data: { completedDays: number[] };
 	let activeDay = 1;
@@ -10,6 +13,12 @@
 	$: lesson = dailyCoachLessons.find((item) => item.day === activeDay) as DailyCoachLesson;
 	$: progress = Math.round((completedDays.length / dailyCoachLessons.length) * 100);
 	$: correct = selectedAnswer === lesson.question.answer;
+	$: dialogue = lesson.dialogue.map((line, index) => ({
+		speaker: line.speaker,
+		text: line.english,
+		kind: (index % 2 === 0 ? 'female' : 'male') as 'female' | 'male'
+	}));
+	$: shadowLine = lesson.dialogue[0]?.english ?? lesson.title;
 
 	function chooseDay(day: number) {
 		activeDay = day;
@@ -82,20 +91,29 @@
 
 			<section>
 				<h3>1. Dialog</h3>
-				<div class="dialogue">
-					{#each lesson.dialogue as line}
-						<div><b>{line.speaker}</b><p>{line.english}</p><small>{line.indonesian}</small></div>
-					{/each}
-				</div>
+				<DialoguePlayer lines={dialogue} />
 			</section>
 
 			<section>
 				<h3>2. Kosakata</h3>
-				<div class="vocabulary">{#each lesson.vocabulary as word}<span><b>{word.english}</b><small>{word.indonesian}</small></span>{/each}</div>
+				<div class="vocabulary">
+					{#each lesson.vocabulary as word}
+						<span>
+							<b>{word.english}</b>
+							<small>{word.indonesian}</small>
+							<SpeakButton text={word.english} label="Word" />
+						</span>
+					{/each}
+				</div>
 			</section>
 
 			<section class="grammar"><h3>3. Pola bahasa</h3><p>{lesson.grammar}</p></section>
-			<section class="practice"><h3>4. Latihan aktif</h3><p>{lesson.practice}</p></section>
+
+			<section class="practice">
+				<h3>4. Latihan aktif</h3>
+				<p>{lesson.practice}</p>
+				<ShadowPractice sentence={shadowLine} />
+			</section>
 
 			<section class="quiz">
 				<h3>5. Kuis</h3><p>{lesson.question.prompt}</p>

@@ -1,10 +1,21 @@
 <script lang="ts">
 	import SiteShell from '$lib/components/SiteShell.svelte';
 	import ExplodedSentence from '$lib/components/ExplodedSentence.svelte';
+	import DialoguePlayer from '$lib/components/DialoguePlayer.svelte';
+	import SpeakButton from '$lib/components/SpeakButton.svelte';
+	import ShadowPractice from '$lib/components/ShadowPractice.svelte';
 	import { LESSON_EXAMPLE } from '$lib/content/grammar';
 	import { TRANSCRIPT, VOCAB, QUIZ } from '$lib/content/demo-lesson';
 
 	let { data } = $props();
+
+	const dialogue = TRANSCRIPT.map((turn) => ({
+		speaker: turn.speaker,
+		text: turn.line,
+		kind: (turn.speaker === 'Nadia' ? 'female' : 'male') as 'female' | 'male'
+	}));
+
+	const shadowLine = 'Every morning since March. I have been trying to sleep better.';
 
 	let revealed = $state<Record<string, boolean>>({});
 	let picked = $state<Record<string, number | null>>({});
@@ -34,12 +45,8 @@
 		<!-- 1. LISTENING -->
 		<section class="step">
 			<p class="label-util">01 — Listening</p>
-			<h2>Read the exchange aloud, twice.</h2>
-			<ol class="transcript">
-				{#each TRANSCRIPT as turn}
-					<li><span class="who label-util">{turn.speaker}</span><span class="line">{turn.line}</span></li>
-				{/each}
-			</ol>
+			<h2>Listen once, then say it with them.</h2>
+			<DialoguePlayer lines={dialogue} />
 		</section>
 
 		<!-- 2. VOCABULARY -->
@@ -57,6 +64,9 @@
 							<span class="term">{item.term}</span>
 							<span class="ipa label-util">{item.ipa}</span>
 						</button>
+						<div class="word-tools">
+							<SpeakButton text={item.term} label="Word" />
+						</div>
 						{#if revealed[item.term]}
 							<div class="reveal">
 								<p class="meaning">{item.meaning}</p>
@@ -72,11 +82,20 @@
 		<section class="step">
 			<p class="label-util">03 — Grammar</p>
 			<h2>The same sentence, opened.</h2>
+			<div class="grammar-tools">
+				<SpeakButton text={LESSON_EXAMPLE.sentence} label="Hear the sentence" slow />
+			</div>
 			<ExplodedSentence
 				data={LESSON_EXAMPLE}
 				mode="hover"
 				note="Since seven fixes the start. Have been waiting carries it forward to now."
 			/>
+		</section>
+
+		<section class="step">
+			<p class="label-util">03b — Speaking</p>
+			<h2>Say the line. Then hear yourself.</h2>
+			<ShadowPractice sentence={shadowLine} kind="male" />
 		</section>
 
 		<!-- 4. QUIZ -->
@@ -156,29 +175,6 @@
 		font-size: var(--text-step-2);
 	}
 
-	.transcript {
-		list-style: none;
-		margin: 0;
-		padding: 0;
-		display: grid;
-		gap: 0;
-	}
-	.transcript li {
-		display: grid;
-		grid-template-columns: 6rem minmax(0, 1fr);
-		gap: 1rem;
-		padding: 0.95rem 0;
-		border-bottom: 1px solid var(--color-rule);
-	}
-	.who {
-		padding-top: 0.28rem;
-	}
-	.line {
-		font-family: var(--font-display);
-		font-size: var(--text-step-1);
-		line-height: 1.45;
-	}
-
 	.vocab {
 		list-style: none;
 		margin: 0;
@@ -186,6 +182,13 @@
 	}
 	.vocab li {
 		border-bottom: 1px solid var(--color-rule);
+	}
+	.word-tools,
+	.grammar-tools {
+		padding: 0 0 0.85rem;
+	}
+	.grammar-tools {
+		margin-bottom: 0.75rem;
 	}
 	.vocab button {
 		display: flex;
@@ -297,12 +300,5 @@
 	}
 	.button:hover {
 		background: var(--color-accent-deep);
-	}
-
-	@media (max-width: 640px) {
-		.transcript li {
-			grid-template-columns: minmax(0, 1fr);
-			gap: 0.3rem;
-		}
 	}
 </style>
