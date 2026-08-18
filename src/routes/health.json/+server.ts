@@ -38,7 +38,13 @@ export const GET: RequestHandler = async (event) => {
 				secretLength: secret.length,
 				idLooksLikeGoogle: id.endsWith('.apps.googleusercontent.com'),
 				googleLikeKeys
-				}
+			},
+			vapid: {
+				hasPublic: Boolean(String(platform.VAPID_PUBLIC_KEY ?? '').trim()),
+				hasPrivate: Boolean(String(platform.VAPID_PRIVATE_KEY ?? '').trim()),
+				publicLength: String(platform.VAPID_PUBLIC_KEY ?? '').trim().length,
+				publicLooksUncompressed: String(platform.VAPID_PUBLIC_KEY ?? '').trim().startsWith('B')
+			}
 		},
 		{ headers: { 'cache-control': 'no-store' } }
 	);
