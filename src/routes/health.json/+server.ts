@@ -13,8 +13,13 @@ export const GET: RequestHandler = async (event) => {
 	const secret = creds.GOOGLE_CLIENT_SECRET ?? '';
 
 	let keyCount = 0;
+	const googleLikeKeys: string[] = [];
 	try {
-		keyCount = Object.keys(platform).length;
+		const names = Object.keys(platform);
+		keyCount = names.length;
+		for (const name of names) {
+			if (/google|client_id|client_secret/i.test(name)) googleLikeKeys.push(name);
+		}
 	} catch {
 		keyCount = -1;
 	}
@@ -31,8 +36,9 @@ export const GET: RequestHandler = async (event) => {
 				hasSecret: Boolean(secret),
 				idLength: id.length,
 				secretLength: secret.length,
-				idLooksLikeGoogle: id.endsWith('.apps.googleusercontent.com')
-			}
+				idLooksLikeGoogle: id.endsWith('.apps.googleusercontent.com'),
+				googleLikeKeys
+				}
 		},
 		{ headers: { 'cache-control': 'no-store' } }
 	);

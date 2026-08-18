@@ -35,15 +35,28 @@ function firstPresent(...values: Array<string | undefined>) {
  * Check both; never log the values.
  */
 export function googleCredentials(event?: Pick<RequestEvent, 'platform'>): GoogleEnv {
-	const platform = (event?.platform?.env ?? {}) as GoogleEnv;
+	const platform = (event?.platform?.env ?? {}) as Record<string, unknown>;
+	const fromPlatform: Record<string, string> = {};
+	try {
+		for (const [rawKey, value] of Object.entries(platform)) {
+			if (typeof value === 'string' && value.trim()) fromPlatform[rawKey.trim()] = value.trim();
+		}
+	} catch {
+		// platform.env may throw if enumerated in some runtimes; fall through.
+	}
+
 	return {
 		GOOGLE_CLIENT_ID: firstPresent(
-			platform.GOOGLE_CLIENT_ID,
+			fromPlatform.GOOGLE_CLIENT_ID,
+			fromPlatform.GOOGLE_ID,
+			fromPlatform.CLIENT_ID,
 			dynamicEnv.GOOGLE_CLIENT_ID,
 			typeof process !== 'undefined' ? process.env.GOOGLE_CLIENT_ID : undefined
 		),
 		GOOGLE_CLIENT_SECRET: firstPresent(
-			platform.GOOGLE_CLIENT_SECRET,
+			fromPlatform.GOOGLE_CLIENT_SECRET,
+			fromPlatform.GOOGLE_SECRET,
+			fromPlatform.CLIENT_SECRET,
 			dynamicEnv.GOOGLE_CLIENT_SECRET,
 			typeof process !== 'undefined' ? process.env.GOOGLE_CLIENT_SECRET : undefined
 		)
