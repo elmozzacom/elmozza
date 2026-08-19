@@ -106,6 +106,18 @@ export const actions: Actions = {
 			.run();
 
 		const score = scoreChoices(questionnaire.questions, answers);
+		try {
+			const { recordQuizResult } = await import('$lib/server/board');
+			await recordQuizResult(db, {
+				userId: user.id,
+				quizId: `questionnaire-${day}`,
+				source: 'daily_questionnaire',
+				total: score.total || questionnaire.questions.length,
+				correct: score.correct
+			});
+		} catch {
+			/* never block check-in */
+		}
 		if (day === 14) {
 			await db
 				.prepare(

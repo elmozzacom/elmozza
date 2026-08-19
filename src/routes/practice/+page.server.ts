@@ -27,6 +27,18 @@ export const actions: Actions = {
 		const quality = Number(form.get('quality'));
 		if (!key || Number.isNaN(quality)) return fail(400, { error: 'Missing grade.' });
 		await markReview(db, user.id, key, quality);
+		try {
+			const { recordQuizResult } = await import('$lib/server/board');
+			await recordQuizResult(db, {
+				userId: user.id,
+				quizId: `practice-${key}`,
+				source: 'practice',
+				total: 1,
+				correct: quality >= 3 ? 1 : 0
+			});
+		} catch {
+			/* ignore */
+		}
 		const left = await dueItems(db, user.id, 1);
 		if (left.length === 0) await refillHeartsByReview(db, user.id);
 		throw redirect(303, '/practice?ok=1');

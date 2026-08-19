@@ -12,7 +12,13 @@
 	<article class="box">
 		<h1>Settings</h1>
 		{#if form?.ok}<p>Saved.</p>{/if}
+		{#if form?.error}<p class="err">{form.error}</p>{/if}
 		<form method="POST" action="?/save">
+			<label>
+				<span class="label-util">Leaderboard nickname</span>
+				<input name="nickname" value={data.nickname} maxlength="20" placeholder="3–20 characters" />
+			</label>
+			<p class="hint">Setting a nickname lists you on the public honor board. Your account name stays private.</p>
 			<label>
 				<span class="label-util">Daily goal</span>
 				<select name="goal">
@@ -48,9 +54,17 @@
 	}
 	select,
 	input[type='number'],
+	input[name='nickname'],
 	button {
 		padding: 0.5rem;
 		font: inherit;
+	}
+	.hint,
+	.err {
+		font-size: var(--text-step--1);
+	}
+	.err {
+		color: var(--color-warn-deep);
 	}
 	button {
 		background: var(--color-accent);

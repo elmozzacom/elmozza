@@ -8,6 +8,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 	const db = dbOrError(locals.db ?? undefined);
 	const game = await ensureGame(db, user.id);
 	if (!game.onboarded_at) throw redirect(303, '/onboarding');
+	const nick = await db.prepare('SELECT board_nickname FROM users WHERE id = ?').bind(user.id).first<{ board_nickname: string | null }>();
 	return {
 		user: { username: user.username, role: user.role, current_streak: user.current_streak },
 		game: {
@@ -17,7 +18,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 			league_opt_out: game.league_opt_out,
 			reminder_hour: game.reminder_hour,
 			freeze_bank: game.freeze_bank
-		}
+		},
+		nickname: nick?.board_nickname ?? ''
 	};
 };
 
@@ -35,6 +37,23 @@ export const actions: Actions = {
 			.prepare('UPDATE user_game SET daily_goal = ?, reminder_hour = ?, league_opt_out = ? WHERE user_id = ?')
 			.bind(goal, hour, opt, user.id)
 			.run();
+		const nick = String(form.get('nickname') ?? '').trim();
+		if (nick) {
+			const { validateNickname } = await import('$lib/server/board-rank');
+			const check = validateNickname(nick);
+			if (!check.ok) return fail(400, { error: check.error });
+			const taken = await db
+				.prepare('SELECT id FROM users WHERE lower(board_nickname) = lower(?) AND id != ?')
+				.bind(check.nickname, user.id)
+				.first();
+			if (taken) return fail(400, { error: 'That nickname is already taken.' });
+			await db
+				.prepare("UPDATE users SET board_nickname = ?, board_nickname_set_at = datetime('now') WHERE id = ?")
+				.bind(check.nickname, user.id)
+				.run();
+			const { bustBoardCache } = await import('$lib/server/board');
+			bustBoardCache();
+		}
 		return { ok: true };
 	}
 };

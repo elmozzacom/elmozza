@@ -90,6 +90,25 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			}
 		: null;
 
+	const nick = db
+		? await db
+				.prepare('SELECT board_nickname FROM users WHERE id = ?')
+				.bind(user.id)
+				.first<{ board_nickname: string | null }>()
+		: null;
+	let boardCard = null;
+	if (justChecked && db) {
+		const { weeklyBoard, findSelf } = await import('$lib/server/board');
+		const weekly = await weeklyBoard(db);
+		const self = findSelf(weekly, user.id);
+		boardCard = {
+			score: justChecked.of ? `${justChecked.correct}/${justChecked.of}` : '',
+			weeklyAvg: self ? self.avgPct : null,
+			weeklyRank: self ? self.rank : null,
+			weeklyTotal: weekly.length
+		};
+	}
+
 	return {
 		user: { ...user, total_xp, current_streak: journey.streak },
 		completed,
@@ -105,6 +124,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		nextTitle: next?.title ?? 'Greeting and Introduction',
 		nextObjective: next?.objective ?? '',
 		nextDuration: next?.durationMinutes ?? 10,
-		lessons
+		lessons,
+		inviteBoard: !nick?.board_nickname,
+		boardCard
 	};
 };

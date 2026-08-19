@@ -34,6 +34,7 @@
 		<a href="/#pricing">Pricing</a>
 		{#if user}
 			<a href="/learn">Learn</a>
+			<a href="/leaderboard">Leaderboard</a>
 			<a href="/dashboard">Dashboard</a>
 			{#if isAdmin}<a href="/admin">Admin</a>{/if}
 			{#if isSuper}<a href="/superadmin">Superadmin</a>{/if}
@@ -64,6 +65,7 @@
 		<a href="/#pricing" onclick={() => (open = false)}>Pricing</a>
 		{#if user}
 			<a href="/learn" onclick={() => (open = false)}>Learn</a>
+			<a href="/leaderboard" onclick={() => (open = false)}>Leaderboard</a>
 			<a href="/dashboard" onclick={() => (open = false)}>Dashboard</a>
 			{#if isAdmin}<a href="/admin" onclick={() => (open = false)}>Admin</a>{/if}
 			{#if isSuper}<a href="/superadmin" onclick={() => (open = false)}>Superadmin</a>{/if}

@@ -28,6 +28,7 @@
 			<a class:on={active === 'accounts'} href="/superadmin/accounts">Accounts</a>
 			<a class:on={active === 'logs'} href="/superadmin/logs">Audit log</a>
 			<a class:on={active === 'notifications'} href="/superadmin/notifications">Notifications</a>
+			<a href="/superadmin/flags">Landing</a>
 			<a href="/admin">Admin desk</a>
 		</nav>
 	</header>

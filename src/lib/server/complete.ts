@@ -33,7 +33,7 @@ export async function finishStep(
 	db: D1Database,
 	userId: number,
 	step: { id: number; type: string; xp: number; srs_item_key: string | null },
-	opts: { perfect: boolean; already: boolean }
+	opts: { perfect: boolean; already: boolean; total?: number; correct?: number }
 ) {
 	if (opts.already) return { xp: 0, first: false };
 	const bonus = opts.perfect ? Math.round(step.xp * 0.25) : 0;
@@ -50,6 +50,18 @@ export async function finishStep(
 		kind: step.type === 'listening' ? 'listening' : step.type === 'speaking' ? 'speaking' : 'step'
 	});
 	if (step.srs_item_key) await meetItem(db, userId, step.srs_item_key);
+	try {
+		const { recordQuizResult } = await import('$lib/server/board');
+		await recordQuizResult(db, {
+			userId,
+			quizId: `step-${step.id}`,
+			source: step.type === 'checkpoint' ? 'checkpoint' : 'path_step',
+			total: opts.total ?? 1,
+			correct: opts.correct ?? (opts.perfect ? 1 : 0)
+		});
+	} catch {
+		/* never block the lesson */
+	}
 
 	const today = jakartaDate();
 	const game = await ensureGame(db, userId);

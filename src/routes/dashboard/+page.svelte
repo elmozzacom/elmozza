@@ -35,6 +35,9 @@
 		{#if data.notice === 'superadmin'}
 			<p class="nudge" role="status">That desk is reserved. Your own dashboard is here.</p>
 		{/if}
+		{#if data.inviteBoard}
+			<p class="nudge">Set a nickname in Settings to join the leaderboard.</p>
+		{/if}
 
 		<div class="columns">
 			<!-- Dominant element: the resume card -->
@@ -60,6 +63,15 @@
 							Vocabulary {data.justChecked.correct}/{data.justChecked.of}.
 						{/if}
 					</p>
+					{#if data.boardCard}
+						<p class="checked">
+							This quiz {data.boardCard.score}.
+							{#if data.boardCard.weeklyRank && data.boardCard.weeklyAvg != null}
+								This week {data.boardCard.weeklyAvg.toFixed(1)}% · #{data.boardCard.weeklyRank} of {data.boardCard.weeklyTotal}.
+							{/if}
+							<a href="/leaderboard">Full leaderboard</a>
+						</p>
+					{/if}
 				{:else if !data.doneToday && !finished}
 					<p class="nudge">Nothing recorded today. One lesson keeps the streak.</p>
 				{/if}

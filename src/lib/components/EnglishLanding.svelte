@@ -4,7 +4,18 @@
 	import { SIGNATURE, SIGNATURE_NOTE } from '$lib/content/grammar';
 	import { LEVELS, PLACEMENT, TIERS, QUOTES } from '$lib/content/marketing';
 
-	let { user = null }: { user?: { username: string; role: string } | null } = $props();
+	let {
+		user = null,
+		board = { showTeaser: false, teaser: [], showTelegram: false, telegramUrl: '' }
+	}: {
+		user?: { username: string; role: string } | null;
+		board?: {
+			showTeaser: boolean;
+			teaser: Array<{ nickname: string; avgPct: number }>;
+			showTelegram: boolean;
+			telegramUrl: string;
+		};
+	} = $props();
 
 	let picked = $state<Record<string, number | null>>({ p1: null, p2: null, p3: null });
 	const answered = $derived(Object.values(picked).filter((value) => value !== null).length);
@@ -25,6 +36,50 @@
 			it works before you are asked to use it.
 		</p>
 		<a class="button" href="/demo">Open the demo lesson</a>
+	</section>
+
+	{#if board.showTeaser}
+		<section class="band" id="live-board">
+			<p class="label-util">Live leaderboard</p>
+			<h2>This week’s honor board</h2>
+			<ol class="teaser">
+				{#each board.teaser as row, index}
+					<li>{index + 1}. {row.nickname} · {row.avgPct.toFixed(1)}%</li>
+				{/each}
+				<li class="ghost">4. ———</li>
+				<li class="ghost">5. ———</li>
+			</ol>
+			<a class="button" href="/register">Join and climb the board</a>
+		</section>
+	{/if}
+
+	<section class="band" id="versions">
+		<p class="label-util">Choose your way to learn</p>
+		<h2>Two versions of the same offer.</h2>
+		<div class="pair">
+			<article>
+				<h3>Web version</h3>
+				<ul>
+					<li>Learning path and 14-day journey</li>
+					<li>Public leaderboard</li>
+					<li>PWA on your home screen</li>
+					<li>Check-in, review, and speaking</li>
+				</ul>
+				<a class="button" href="/register">Start on the web</a>
+			</article>
+			{#if board.showTelegram && board.telegramUrl}
+				<article>
+					<h3>Telegram version</h3>
+					<ul>
+						<li>Daily five-question quizzes</li>
+						<li>The same ranking rules</li>
+						<li>Nickname honor board inside chat</li>
+						<li>No app install beyond Telegram</li>
+					</ul>
+					<a class="button" href={board.telegramUrl}>Open the EDC bot</a>
+				</article>
+			{/if}
+		</div>
 	</section>
 
 	<!-- CURRICULUM: each band is a readable row; brightness only carries the axis -->
@@ -343,6 +398,27 @@
 		justify-items: center;
 		text-align: center;
 	}
+	.teaser {
+		list-style: none;
+		margin: 0 0 1rem;
+		padding: 0;
+		display: grid;
+		gap: 0.4rem;
+		font-family: var(--font-mono);
+	}
+	.ghost {
+		opacity: 0.35;
+		filter: blur(1px);
+	}
+	.pair {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 2rem;
+	}
+	.pair ul {
+		padding-left: 1.1rem;
+		color: var(--color-ink-muted);
+	}
 
 	@media (max-width: 860px) {
 		.spectrum li {
@@ -356,7 +432,8 @@
 			grid-column: 2 / -1;
 		}
 		.quotes,
-		.tiers {
+		.tiers,
+		.pair {
 			grid-template-columns: minmax(0, 1fr);
 			gap: 0;
 		}

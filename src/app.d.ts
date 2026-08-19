@@ -13,6 +13,7 @@ type Env = {
 	VAPID_PRIVATE_KEY?: string;
 	AI_CONVERSATION?: string;
 	AI?: unknown;
+	TELEGRAM_BOT_URL?: string;
 };
 
 declare global {

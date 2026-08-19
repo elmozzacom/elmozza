@@ -86,7 +86,12 @@ export const actions: Actions = {
 			return fail(422, { error: 'Not quite. Try once more — practice is free.' });
 		}
 
-		const result = await finishStep(db, user.id, step, { perfect: true, already: Boolean(done) });
-		throw redirect(303, `/learn?done=${step.id}&xp=${result.xp}`);
+		const result = await finishStep(db, user.id, step, {
+			perfect: true,
+			already: Boolean(done),
+			total: step.type === 'checkpoint' ? (payload.questions as unknown[]).length : 1,
+			correct: step.type === 'checkpoint' ? (payload.questions as unknown[]).length : 1
+		});
+		throw redirect(303, `/learn?done=${step.id}&xp=${result.xp}&correct=${step.type === 'checkpoint' ? (payload.questions as unknown[]).length : 1}&of=${step.type === 'checkpoint' ? (payload.questions as unknown[]).length : 1}`);
 	}
 };

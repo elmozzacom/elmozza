@@ -20,6 +20,19 @@
 			<h1>Today’s walk</h1>
 			<p class="meta">Goal {data.game.daily_goal} XP · {data.user.total_xp} XP all time · {data.game.freeze_bank} freeze</p>
 		</header>
+		{#if data.boardCard}
+			<section class="quests" data-aos="fade-up">
+				<p class="label-util">This quiz</p>
+				<p>Score {data.boardCard.score}.</p>
+				{#if data.boardCard.weeklyRank && data.boardCard.weeklyAvg != null}
+					<p>This week {data.boardCard.weeklyAvg.toFixed(1)}% · #{data.boardCard.weeklyRank} of {data.boardCard.weeklyTotal}.</p>
+				{/if}
+				{#if data.boardCard.invite}
+					<p>Set a nickname in Settings to join the leaderboard.</p>
+				{/if}
+				<p><a href="/leaderboard">Full leaderboard</a></p>
+			</section>
+		{/if}
 
 		<section class="quests" data-aos="fade-up">
 			<p class="label-util">Daily quests</p>
