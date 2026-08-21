@@ -29,6 +29,7 @@
 	</a>
 
 	<nav class="links" aria-label="Primary">
+		<a href="/quiz">Quiz</a>
 		<a href="/demo">Demo lesson</a>
 		<a href="/#curriculum">Curriculum</a>
 		<a href="/#pricing">Pricing</a>
@@ -60,6 +61,7 @@
 
 {#if open}
 	<nav id="mobile-nav" class="sheet" aria-label="Mobile">
+		<a href="/quiz" onclick={() => (open = false)}>Quiz</a>
 		<a href="/demo" onclick={() => (open = false)}>Demo lesson</a>
 		<a href="/#curriculum" onclick={() => (open = false)}>Curriculum</a>
 		<a href="/#pricing" onclick={() => (open = false)}>Pricing</a>

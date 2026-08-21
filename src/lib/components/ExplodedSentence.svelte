@@ -153,13 +153,17 @@
 			const targetX = leftRail + index * indent;
 			const rowCentre = top + index * rowGap;
 			const targetY = rowCentre - el.offsetHeight / 2;
+			// The fragment box now carries its trailing space, so the leader line
+			// must start after the WORD, not after the word plus that space.
+			const word = el.querySelector<HTMLElement>('.word');
+			const wordWidth = word?.offsetWidth ?? el.offsetWidth;
 
 			return {
 				dx: targetX - origin.x,
 				dy: targetY - origin.y,
 				lx: railX,
 				ly: rowCentre,
-				x1: targetX + el.offsetWidth + 10,
+				x1: targetX + wordWidth + 10,
 				x2: railX - 8,
 				y: rowCentre
 			};
@@ -188,7 +192,11 @@
 					class="frag"
 					bind:this={wordEls[index]}
 					style="--dx: {places[index]?.dx ?? 0}px; --dy: {places[index]?.dy ?? 0}px"
-				>{fragment.text}</span>{#if fragment.space}&nbsp;{/if}
+				><span class="word">{fragment.text}</span>{#if fragment.space}<span
+						class="gap"
+						aria-hidden="true">&nbsp;</span
+					>{/if}</span
+				>
 			{/each}
 		</svelte:element>
 
@@ -347,8 +355,23 @@
 	.is-hover .frag {
 		transition: transform 0.62s cubic-bezier(0.16, 0.84, 0.24, 1);
 	}
+	/*
+	 * The trailing space now travels INSIDE the fragment box. It used to be a
+	 * bare `&nbsp;` sibling: when a fragment translated away, the space stayed
+	 * behind in the flow and the remaining words closed up, so the assembled
+	 * sentence read "learningquietly, andnow shespeaks."
+	 */
+	.frag .word {
+		position: relative;
+		display: inline-block;
+	}
+	.frag .gap {
+		display: inline-block;
+		/* Never carries the part underline, and never wraps on its own. */
+		white-space: pre;
+	}
 	/* Once separated each fragment reads as a part, not a word. */
-	.frag::after {
+	.frag .word::after {
 		content: '';
 		position: absolute;
 		left: 0;
