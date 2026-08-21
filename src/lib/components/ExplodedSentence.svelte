@@ -453,7 +453,7 @@
 		padding: 1.75rem;
 		background: var(--color-paper-raised);
 		border: 1px solid var(--color-rule);
-		border-radius: 4px;
+		border-radius: 0.75rem;
 		overflow-x: clip;
 	}
 	.opener {

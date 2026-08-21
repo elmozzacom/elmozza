@@ -131,7 +131,7 @@
 		padding: 0.85rem 1rem;
 		background: var(--color-accent-tint);
 		color: var(--color-accent-deep);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		font-size: var(--text-step--1);
 	}
 	.error {
@@ -139,7 +139,7 @@
 		margin: 0 0 2rem;
 		background: var(--color-warn-tint);
 		color: var(--color-warn-deep);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		font-size: var(--text-step--1);
 	}
 
@@ -224,7 +224,7 @@
 		display: block;
 		padding: 0.9rem 1.1rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper-raised);
 		cursor: pointer;
 		transition: border-color 0.18s ease, background 0.18s ease;
@@ -240,7 +240,7 @@
 		box-sizing: border-box;
 		padding: 0.9rem 1rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper-raised);
 		font-family: var(--font-body);
 		font-size: 1rem;
@@ -266,7 +266,7 @@
 		justify-self: start;
 		padding: 0.9rem 1.8rem;
 		border: 0;
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-accent);
 		color: #fff;
 		font-family: var(--font-body);

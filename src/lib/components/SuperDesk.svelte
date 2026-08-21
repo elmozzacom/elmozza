@@ -63,7 +63,7 @@
 	.tabs a {
 		padding: 0.5rem 1rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		color: var(--color-ink);
 		text-decoration: none;
 		font-size: 0.9rem;

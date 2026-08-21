@@ -103,7 +103,7 @@
 	.ok,
 	.err {
 		padding: 0.75rem 1rem;
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		font-size: var(--text-step--1);
 	}
 	.ok {

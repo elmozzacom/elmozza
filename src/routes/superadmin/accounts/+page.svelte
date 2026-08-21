@@ -103,7 +103,7 @@
 	.csv {
 		padding: 0.5rem 0.75rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper-raised);
 		font: inherit;
 		font-size: 0.9rem;

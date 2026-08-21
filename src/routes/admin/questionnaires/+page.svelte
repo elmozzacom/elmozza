@@ -157,7 +157,7 @@
 	.tabs a {
 		padding: 0.5rem 1rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		color: var(--color-ink);
 		text-decoration: none;
 		font-size: 0.9rem;
@@ -189,7 +189,7 @@
 		padding: 1.75rem;
 		background: var(--color-paper-raised);
 		border: 1px solid var(--color-rule);
-		border-radius: 3px;
+		border-radius: 0.625rem;
 	}
 	.panel h2 {
 		margin: 0 0 1.25rem;
@@ -223,7 +223,7 @@
 		justify-items: center;
 		gap: 0.35rem;
 		padding: 0.35rem 0;
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		text-decoration: none;
 		color: var(--color-ink-muted);
 	}
@@ -261,7 +261,7 @@
 	.search input {
 		padding: 0.5rem 0.7rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper);
 		font: inherit;
 		font-size: 0.9rem;
@@ -270,7 +270,7 @@
 	.csv {
 		padding: 0.5rem 0.9rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper);
 		color: var(--color-ink);
 		font: inherit;

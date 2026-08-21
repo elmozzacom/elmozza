@@ -5,20 +5,57 @@ import fs from 'node:fs';
 const root = new URL('..', import.meta.url);
 const read = (path) => fs.readFileSync(new URL(path, root), 'utf8');
 
-test('design tokens commit to one accent on warm paper with no dark surface', () => {
+test('design tokens commit to the warm Elmozza clinic palette', () => {
   const css = read('src/app.css');
-  assert.match(css, /--color-paper:\s*#fbfaf7/i);
-  assert.match(css, /--color-ink:\s*#1c1b18/i);
-  assert.match(css, /--color-accent:\s*#1b36c4/i);
+  // The palette follows the clinic and the game: soft pink is the voice,
+  // amber is the cheer. The old gallery theme (ink-black serif on paper with
+  // an ultramarine accent) read like an academic journal — correct, but too
+  // stiff for a place people come to enjoy learning.
+  assert.match(css, /--color-accent:\s*#db2777/i, 'accent must be the Elmozza pink');
+  assert.match(css, /--color-cheer:\s*#f59e0b/i, 'amber cheer colour must exist');
+  assert.match(css, /--color-paper:\s*#fff8fb/i);
+  assert.match(css, /--color-ink:\s*#2c2431/i);
+  // The old ultramarine must be fully gone — a leftover would clash badly.
+  assert.doesNotMatch(css, /#1b36c4|#132894/i, 'old ultramarine accent still present');
+  // Rounded corners are part of the friendlier feel.
+  assert.match(css, /--radius-lembut:/);
+  assert.match(css, /--radius-penuh:/);
   // Typography does the heavy lifting: three real stacks, a real scale.
   assert.match(css, /--font-display:/);
   assert.match(css, /--font-body:/);
   assert.match(css, /--font-mono:/);
   assert.match(css, /--text-step-5:/);
+  // Headings must not fall back to serif: that is what made it feel formal.
+  const display = css.match(/--font-display:([^;]+);/)?.[1] ?? '';
+  // Careful: /serif/ also matches "sans-serif". Match the serif families and
+  // a standalone `serif` keyword only.
+  assert.doesNotMatch(
+    display,
+    /(^|[\s,])serif|Georgia|Palatino|Iowan|Book Antiqua/i,
+    'display font must not be serif'
+  );
   // Zero web fonts protects the performance budget.
   assert.doesNotMatch(css, /@import url\(|fonts\.googleapis|fonts\.gstatic/i);
-  // No decorative gradients, no glassmorphism on surfaces.
+  // No decorative gradients, no glassmorphism on base surfaces.
   assert.doesNotMatch(css, /linear-gradient|radial-gradient/i);
+});
+
+test('interface corners are rounded, not sharp office-form edges', () => {
+  // 3px corners across 19 files were the main source of the stiff feeling.
+  // This guards the whole component layer, not just one page.
+  const files = [
+    'src/lib/components/SiteShell.svelte',
+    'src/lib/components/AuthPanel.svelte',
+    'src/routes/start/+page.svelte',
+    'src/routes/quiz/+page.svelte'
+  ];
+  for (const file of files) {
+    assert.doesNotMatch(
+      read(file),
+      /border-radius:\s*[234]px/i,
+      `${file} still has sharp 2-4px corners`
+    );
+  }
 });
 
 test('keyboard focus is visible everywhere and never removed', () => {

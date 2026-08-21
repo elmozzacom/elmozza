@@ -139,7 +139,7 @@
 	.review li {
 		padding: 1.15rem 1.2rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 4px;
+		border-radius: 0.75rem;
 		background: var(--color-paper-raised);
 	}
 	.review li.right {
@@ -170,7 +170,7 @@
 		gap: 0.6rem;
 		padding: 0.65rem 0.85rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 3px;
+		border-radius: 0.625rem;
 		cursor: pointer;
 	}
 	label.on {
@@ -202,7 +202,7 @@
 		display: inline-block;
 		padding: 0.85rem 2rem;
 		border: 1px solid var(--color-accent);
-		border-radius: 3px;
+		border-radius: 0.625rem;
 		font-weight: 600;
 		text-decoration: none;
 		cursor: pointer;
@@ -215,8 +215,25 @@
 		color: var(--color-accent-deep);
 		background: none;
 	}
+	/*
+		Tombol kirim mati sampai kelima soal terjawab.
+
+		Dulu hanya opacity 0.45 — hasilnya tombol pink pucat yang terbaca
+		seperti tombol rusak, bukan "belum waktunya". Sekarang warnanya
+		diganti netral abu supaya jelas ini menunggu, bukan gagal. Begitu
+		semua terjawab, tombolnya menyala pink penuh — terasa seperti hadiah
+		kecil.
+	*/
 	.button:disabled {
-		opacity: 0.45;
+		background: #f1eef3;
+		border-color: var(--color-rule);
+		/* #6b5f70 lulus WCAG AA (4,7:1) di atas #f1eef3; --color-ink-muted
+		   hanya 4,22:1 — terlalu tipis untuk dibaca. */
+		color: #6b5f70;
+		box-shadow: none;
 		cursor: not-allowed;
+	}
+	.button:disabled:hover {
+		transform: none;
 	}
 </style>

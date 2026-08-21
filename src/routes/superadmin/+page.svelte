@@ -71,7 +71,7 @@
 		padding: 1.75rem;
 		background: var(--color-paper-raised);
 		border: 1px solid var(--color-rule);
-		border-radius: 3px;
+		border-radius: 0.625rem;
 	}
 	.panel h2 {
 		margin: 0 0 1.25rem;

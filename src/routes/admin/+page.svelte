@@ -140,7 +140,7 @@
 	.tabs a {
 		padding: 0.5rem 1rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		color: var(--color-ink);
 		text-decoration: none;
 		font-size: 0.9rem;
@@ -201,7 +201,7 @@
 		min-width: 12rem;
 		padding: 0.6rem 0.75rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper-raised);
 		font: inherit;
 		color: inherit;
@@ -214,7 +214,7 @@
 	.export {
 		padding: 0.62rem 1.2rem;
 		border: 1px solid var(--color-accent);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-accent);
 		color: #fff;
 		font: inherit;
@@ -279,7 +279,7 @@
 	.pill {
 		display: inline-block;
 		padding: 0.18rem 0.6rem;
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		font-family: var(--font-mono);
 		font-size: 0.68rem;
 		letter-spacing: 0.08em;

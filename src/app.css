@@ -2,32 +2,52 @@
 
 /*
  * Elmozza English — design tokens
- * Gallery daylight. Warm paper, ink, one ultramarine accent.
- * No dark sections. No decorative gradients. No glassmorphism.
+ *
+ * Nuansa: KLINIK EL'MOZZA yang hangat, bukan galeri seni.
+ *
+ * Tema lama ("gallery daylight": kertas hangat, tinta hitam, satu aksen
+ * ultramarine + judul serif) terbaca seperti jurnal akademik — kaku dan
+ * terlalu formal untuk tempat orang belajar bahasa dengan senang hati.
+ *
+ * Sekarang diselaraskan dengan warna klinik & game: pink lembut sebagai
+ * warna utama, amber sebagai penyemangat, sudut membulat, dan huruf sans
+ * yang ramah. Tetap bersih dan tidak norak — ini klinik, bukan taman
+ * bermain — tapi terasa disambut, bukan diuji.
  */
 
 @theme {
-	/* Surfaces */
-	--color-paper: #fbfaf7;
+	/* Permukaan — putih bersih dengan semburat pink yang sangat halus */
+	--color-paper: #fff8fb;
 	--color-paper-raised: #ffffff;
 
-	/* Text */
-	--color-ink: #1c1b18;
-	--color-ink-muted: #6b6659;
+	/* Teks — abu kebiruan lembut, bukan hitam pekat yang menghakimi */
+	--color-ink: #2c2431;
+	--color-ink-muted: #7a6d80;
 
-	/* Structure */
-	--color-rule: #e3e0d8;
+	/* Garis pemisah */
+	--color-rule: #f3e2ec;
 
-	/* The single accent: deep ultramarine */
-	--color-accent: #1b36c4;
-	--color-accent-deep: #132894;
-	--color-accent-tint: #edf0fe;
-	--color-warn-tint: #fbede7;
-	--color-warn-deep: #8c3d22;
-	--color-good-deep: #245c3c;
+	/* Warna utama: pink Elmozza — sama dengan tombol di game */
+	--color-accent: #db2777;
+	--color-accent-deep: #be185d;
+	--color-accent-tint: #fdf2f8;
 
-	/* Type stacks — system only, zero font requests */
-	--font-display: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+	/* Amber: penyemangat, dipakai untuk pencapaian & papan juara */
+	--color-cheer: #f59e0b;
+	--color-cheer-tint: #fffbeb;
+	--color-cheer-deep: #b45309;
+
+	--color-warn-tint: #fff1e7;
+	--color-warn-deep: #9a4a24;
+	--color-good-deep: #15803d;
+	--color-good-tint: #f0fdf4;
+
+	/*
+	 * Huruf — tetap dari sistem, nol permintaan font (penting untuk HP
+	 * dengan koneksi lambat). Judul TIDAK LAGI serif: serif itu yang
+	 * membuat halaman terasa seperti makalah ilmiah.
+	 */
+	--font-display: 'Segoe UI Variable Display', 'SF Pro Rounded', ui-rounded, 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 	--font-body: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 	--font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
 
@@ -39,6 +59,11 @@
 	--text-step-3: 2.369rem;
 	--text-step-4: 3.157rem;
 	--text-step-5: 4.209rem;
+
+	/* Sudut membulat — nuansa ramah, selaras dengan tombol di game */
+	--radius-lembut: 0.875rem;
+	--radius-bulat: 1.25rem;
+	--radius-penuh: 999px;
 }
 
 @layer base {
@@ -69,17 +94,20 @@
 	h2,
 	h3 {
 		font-family: var(--font-display);
-		font-weight: 600;
-		letter-spacing: -0.022em;
-		line-height: 1.08;
+		/* 700 terasa lebih hangat & percaya diri daripada 600 serif */
+		font-weight: 700;
+		letter-spacing: -0.018em;
+		line-height: 1.14;
 		text-wrap: balance;
 	}
 
 	/* Visible keyboard focus everywhere — never removed, only styled. */
+	/* Cincin fokus keyboard: tetap tegas & mudah terlihat, sekadar dibulatkan
+	   agar senada dengan sudut membulat di seluruh situs. */
 	:focus-visible {
 		outline: 2px solid var(--color-accent);
 		outline-offset: 3px;
-		border-radius: 2px;
+		border-radius: 0.375rem;
 	}
 
 	::selection {

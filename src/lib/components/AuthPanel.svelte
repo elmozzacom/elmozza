@@ -61,7 +61,7 @@
 		padding: 2.25rem;
 		background: var(--color-paper-raised);
 		border: 1px solid var(--color-rule);
-		border-radius: 3px;
+		border-radius: 0.625rem;
 	}
 	h1 {
 		margin: 0 0 0.5rem;
@@ -102,7 +102,7 @@
 		box-sizing: border-box;
 		padding: 0.75rem 0.85rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper);
 		font-family: var(--font-body);
 		font-size: 1rem;
@@ -118,7 +118,7 @@
 	:global(.auth-page form button:not([type])) {
 		padding: 0.85rem;
 		border: 0;
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-accent);
 		color: #fff;
 		font-family: var(--font-body);
@@ -138,7 +138,7 @@
 		padding: 0.8rem 0.9rem;
 		background: var(--color-warn-tint);
 		color: var(--color-warn-deep);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		font-size: var(--text-step--1);
 	}
 	:global(.auth-page .foot) {

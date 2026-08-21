@@ -81,7 +81,7 @@
 	.ctl {
 		padding: 0.55rem 1rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper-raised);
 		color: var(--color-ink);
 		font: inherit;

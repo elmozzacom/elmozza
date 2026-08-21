@@ -178,7 +178,7 @@
 		padding: 0.5rem 1.05rem;
 		background: var(--color-accent);
 		color: #fff !important;
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		font-weight: 600;
 	}
 
@@ -186,7 +186,7 @@
 		display: none;
 		padding: 0.45rem 0.85rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper-raised);
 		font: inherit;
 		font-size: 0.86rem;

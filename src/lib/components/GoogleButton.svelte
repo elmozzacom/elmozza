@@ -40,7 +40,7 @@
 		padding: 0.8rem 1rem;
 		background: #fff;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		color: var(--color-ink);
 		text-decoration: none;
 		font-family: var(--font-body);

@@ -205,7 +205,7 @@
 		padding: 0.85rem 1.75rem;
 		background: var(--color-accent);
 		color: #fff;
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		font-weight: 600;
 		text-decoration: none;
 	}
@@ -218,7 +218,7 @@
 		background: var(--color-accent-tint);
 		color: var(--color-accent-deep);
 		font-size: var(--text-step--1);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 	}
 	.checked {
 		margin: 0.5rem 0 0;
@@ -227,7 +227,7 @@
 		color: var(--color-accent-deep);
 		font-size: var(--text-step--1);
 		font-weight: 600;
-		border-radius: 2px;
+		border-radius: 0.5rem;
 	}
 
 	.skills {

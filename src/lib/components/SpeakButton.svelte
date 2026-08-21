@@ -57,7 +57,7 @@
 		gap: 0.4rem;
 		padding: 0.28rem 0.55rem 0.28rem 0.4rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper-raised);
 		color: var(--color-accent-deep);
 		font-family: var(--font-mono);

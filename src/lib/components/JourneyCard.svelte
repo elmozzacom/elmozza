@@ -78,7 +78,7 @@
 		padding: 1.75rem;
 		background: var(--color-paper-raised);
 		border: 1px solid var(--color-rule);
-		border-radius: 3px;
+		border-radius: 0.625rem;
 	}
 	header {
 		display: flex;
@@ -150,7 +150,7 @@
 		padding: 0.7rem 1.35rem;
 		background: var(--color-accent);
 		color: #fff;
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		text-decoration: none;
 		font-weight: 600;
 		font-size: 0.95rem;

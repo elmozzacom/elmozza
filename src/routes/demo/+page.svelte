@@ -244,7 +244,7 @@
 	.option {
 		padding: 0.65rem 1.15rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper-raised);
 		font: inherit;
 		cursor: pointer;
@@ -294,7 +294,7 @@
 		padding: 0.85rem 1.6rem;
 		background: var(--color-accent);
 		color: #fff;
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		font-weight: 600;
 		text-decoration: none;
 	}

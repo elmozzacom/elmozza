@@ -131,7 +131,7 @@
 		padding: 1.5rem;
 		background: var(--color-paper-raised);
 		border: 1px solid var(--color-rule);
-		border-radius: 3px;
+		border-radius: 0.625rem;
 	}
 	.model {
 		margin: 0;
@@ -148,7 +148,7 @@
 	.ctl {
 		padding: 0.5rem 0.95rem;
 		border: 1px solid var(--color-rule);
-		border-radius: 2px;
+		border-radius: 0.5rem;
 		background: var(--color-paper);
 		font: inherit;
 		font-size: 0.9rem;
