@@ -41,8 +41,8 @@ async function loadRows(db: D1Database, weekly: boolean, now = new Date()): Prom
 			duration_seconds: number | null;
 			completed_at: string;
 		}>();
-	return (listing.results ?? [])
-		.filter((row) => !weekly || inCurrentWeek(row.completed_at, now))
+	const rows: ResultRow[] = (listing.results ?? []).
+		filter((row) => !weekly || inCurrentWeek(row.completed_at, now))
 		.map((row) => ({
 			userId: String(row.user_id),
 			nickname: row.nickname,
@@ -51,6 +51,40 @@ async function loadRows(db: D1Database, weekly: boolean, now = new Date()): Prom
 			duration: row.duration_seconds,
 			completedAt: row.completed_at
 		}));
+
+	// Telegram players join the same ranking rules only after explicit nickname opt-in.
+	// Missing migration tables are tolerated during phased rollout.
+	try {
+		const telegram = await db.prepare(
+			`SELECT p.id AS player_id, p.display_name, s.id AS session_id,
+			        100.0 * SUM(a.is_correct) / COUNT(a.id) AS percentage,
+			        COUNT(a.id) AS questions, MAX(a.answered_at) AS completed_at
+			 FROM quiz_answers a
+			 JOIN quiz_players p ON p.id = a.player_id
+			 JOIN quiz_publications q ON q.id = a.publication_id
+			 JOIN quiz_sessions s ON s.id = q.session_id
+			 WHERE p.platform = 'telegram' AND p.leaderboard_opt_in = 1
+			 GROUP BY p.id, p.display_name, s.id
+			 HAVING COUNT(a.id) = 5`
+		).all<{
+			player_id: number; display_name: string; session_id: number;
+			percentage: number; questions: number; completed_at: string;
+		}>();
+		for (const row of telegram.results ?? []) {
+			if (weekly && !inCurrentWeek(row.completed_at, now)) continue;
+			rows.push({
+				userId: `telegram:${row.player_id}`,
+				nickname: row.display_name,
+				percentage: Number(row.percentage),
+				questions: Number(row.questions),
+				duration: null,
+				completedAt: row.completed_at
+			});
+		}
+	} catch {
+		// Migration 0008 may not yet be applied; the existing web board remains available.
+	}
+	return rows;
 }
 
 export async function weeklyBoard(db: D1Database, now = new Date()) {

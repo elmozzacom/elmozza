@@ -14,6 +14,10 @@ type Env = {
 	AI_CONVERSATION?: string;
 	AI?: unknown;
 	TELEGRAM_BOT_URL?: string;
+	QUIZ_PUBLISH_SECRET?: string;
+	TELEGRAM_BOT_TOKEN?: string;
+	TELEGRAM_QUIZ_CHAT_ID?: string;
+	TELEGRAM_INGEST_SECRET?: string;
 };
 
 declare global {
