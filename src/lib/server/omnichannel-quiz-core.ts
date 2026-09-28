@@ -56,7 +56,7 @@ export function validateQuizPackage(value: unknown): QuizPackage {
 			prompt: text(question.prompt, `Question ${index + 1} prompt`, 280),
 			choices,
 			correctIndex,
-			explanation: text(question.explanation ?? 'Elmozza English', `Question ${index + 1} explanation`, 190)
+			explanation: text(question.explanation ?? 'EL\' Mozza English', `Question ${index + 1} explanation`, 190)
 		};
 	});
 	return {

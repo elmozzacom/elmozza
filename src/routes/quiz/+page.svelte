@@ -11,8 +11,8 @@
 </script>
 
 <svelte:head>
-	<title>Quiz — Elmozza English</title>
-	<meta name="description" content="Five questions from the Elmozza question bank. Scored instantly." />
+	<title>Quiz — EL' Mozza English</title>
+	<meta name="description" content="Five questions from the EL' Mozza question bank. Scored instantly." />
 </svelte:head>
 
 <SiteShell user={data.user}>

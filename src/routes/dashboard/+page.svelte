@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head>
-	<title>Dashboard — Elmozza English</title>
+	<title>Dashboard — EL' Mozza English</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

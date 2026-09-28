@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-	<title>Sign in — Elmozza English</title>
+	<title>Sign in — EL' Mozza English</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

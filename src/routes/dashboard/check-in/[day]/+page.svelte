@@ -15,7 +15,7 @@
 </script>
 
 <svelte:head>
-	<title>Day {data.day} check-in — Elmozza English</title>
+	<title>Day {data.day} check-in — EL' Mozza English</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

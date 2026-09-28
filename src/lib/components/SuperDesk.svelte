@@ -14,7 +14,7 @@
 
 <svelte:head>
 	<meta name="robots" content="noindex" />
-	<title>{heading} — Elmozza English</title>
+	<title>{heading} — EL' Mozza English</title>
 </svelte:head>
 
 <div class="desk">

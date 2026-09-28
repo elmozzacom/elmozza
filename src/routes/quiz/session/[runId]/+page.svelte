@@ -6,8 +6,8 @@
 </script>
 
 <svelte:head>
-	<title>{data.quiz.title} — Elmozza English</title>
-	<meta name="description" content="The same five-question Elmozza quiz published on Telegram and the website." />
+	<title>{data.quiz.title} — EL' Mozza English</title>
+	<meta name="description" content="The same five-question EL' Mozza quiz published on Telegram and the website." />
 </svelte:head>
 
 <SiteShell user={data.user}>

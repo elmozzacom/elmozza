@@ -63,7 +63,7 @@
 
 {#if showInstall}
 	<div class="banner" role="dialog">
-		<p>Add Elmozza English to your home screen.</p>
+		<p>Add EL' Mozza English to your home screen.</p>
 		<button type="button" onclick={install}>Add</button>
 		<button type="button" class="quiet" onclick={() => (showInstall = false)}>Not now</button>
 	</div>

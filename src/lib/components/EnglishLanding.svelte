@@ -29,7 +29,7 @@
 	<ExplodedSentence data={SIGNATURE} mode="scroll" note={SIGNATURE_NOTE} heading />
 
 	<section class="band lede">
-		<p class="label-util">Elmozza English</p>
+		<p class="label-util">EL' Mozza English</p>
 		<h2>English taught as structure, not as a list of rules to memorise.</h2>
 		<p class="measure lead">
 			Ten minutes a day. Every lesson ends with one sentence taken apart in the light, so you see why

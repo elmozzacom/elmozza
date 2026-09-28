@@ -25,7 +25,7 @@
 <header class="masthead">
 	<a class="wordmark" href="/">
 		<span class="mark" aria-hidden="true">E</span>
-		<span>Elmozza <em>English Quiz</em></span>
+		<span>EL' Mozza <em>English Quiz</em></span>
 	</a>
 
 	<nav class="links" aria-label="Primary">
@@ -82,11 +82,11 @@
 <main id="main">{@render children()}</main>
 
 <footer class="foot">
-	<p class="wordmark-foot">Elmozza <em>English Quiz</em></p>
+	<p class="wordmark-foot">EL' Mozza <em>English Quiz</em></p>
 	<nav class="foot-links" aria-label="Footer">
 		<a href="/demo">Demo lesson</a>
 		<a href="/register">Start free</a>
-		<a href="https://klinik.elmozza.com">Klinik Elmozza</a>
+		<a href="https://klinik.elmozza.com">Klinik EL' Mozza</a>
 	</nav>
 	<p class="domain">english.elmozza.com</p>
 </footer>

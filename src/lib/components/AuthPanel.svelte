@@ -9,7 +9,7 @@
 <div class="auth-page">
 	<a class="wordmark" href="/">
 		<span class="mark" aria-hidden="true">E</span>
-		<span>Elmozza <em>English Quiz</em></span>
+		<span>EL' Mozza <em>English Quiz</em></span>
 	</a>
 
 	<div class="panel">

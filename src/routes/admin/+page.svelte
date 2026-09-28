@@ -22,7 +22,7 @@
 </script>
 
 <svelte:head>
-	<title>Registrants — Elmozza English</title>
+	<title>Registrants — EL' Mozza English</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

@@ -25,10 +25,10 @@
 </script>
 
 <svelte:head>
-	<title>Demo lesson — Elmozza English</title>
+	<title>Demo lesson — EL' Mozza English</title>
 	<meta
 		name="description"
-		content="One real Elmozza English lesson, free and without an account: listening, vocabulary, an exploded sentence, and five questions."
+		content="One real EL' Mozza English lesson, free and without an account: listening, vocabulary, an exploded sentence, and five questions."
 	/>
 </svelte:head>
 

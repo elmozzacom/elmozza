@@ -59,7 +59,7 @@
 </script>
 
 <svelte:head>
-	<title>Offline — Elmozza English</title>
+	<title>Offline — EL' Mozza English</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

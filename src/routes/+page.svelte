@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>Elmozza English — English taught as structure</title>
+	<title>EL' Mozza English — English taught as structure</title>
 	<meta
 		name="description"
 		content="Ten minutes a day. Every lesson ends with one sentence taken apart in the light, so you see why it works before you are asked to use it."

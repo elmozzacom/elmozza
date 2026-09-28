@@ -55,18 +55,18 @@
 </script>
 
 <svelte:head>
-	<title>Elmozza — Belajar, klinik, dan layanan harian</title>
+	<title>EL' Mozza — Belajar, klinik, dan layanan harian</title>
 	<meta
 		name="description"
-		content="Elmozza adalah rumah digital Pak Dokter. Coba kuis English singkat, lalu lanjut belajar di English Daily Coach."
+		content="EL' Mozza adalah rumah digital Pak Dokter. Coba kuis English singkat, lalu lanjut belajar di English Daily Coach."
 	/>
 </svelte:head>
 
 <main class="brand">
 	<header>
-		<a class="logo" href="/" aria-label="Elmozza">
+		<a class="logo" href="/" aria-label="EL' Mozza">
 			<span aria-hidden="true">e</span>
-			<b>Elmozza</b>
+			<b>EL' Mozza</b>
 		</a>
 		<nav>
 			<a href="#kuis">Coba kuis</a>
@@ -76,10 +76,10 @@
 	</header>
 
 	<section class="hero">
-		<p class="eyebrow">ELMOZZA</p>
+		<p class="eyebrow">EL' MOZZA</p>
 		<h1>Satu pintu untuk belajar English dan layanan kesehatan.</h1>
 		<p>
-			Situs utama ini memperkenalkan Elmozza. Latihan harian, dashboard member, dan kuis lengkap
+			Situs utama ini memperkenalkan EL' Mozza. Latihan harian, dashboard member, dan kuis lengkap
 			berada di English Daily Coach.
 		</p>
 		<div class="actions">
@@ -131,7 +131,7 @@
 		</a>
 		<a href="https://klinik.elmozza.com">
 			<span>KLINIK</span>
-			<h2>Klinik Elmozza</h2>
+			<h2>Klinik EL' Mozza</h2>
 			<p>Informasi layanan klinik tetap di alamatnya sendiri.</p>
 		</a>
 	</section>

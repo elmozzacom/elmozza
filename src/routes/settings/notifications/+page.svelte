@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>Notifications — Elmozza English</title>
+	<title>Notifications — EL' Mozza English</title>
 </svelte:head>
 
 <SiteShell user={data.user} streak={data.user.current_streak} gems={data.game.gems} hearts={data.game.hearts}>

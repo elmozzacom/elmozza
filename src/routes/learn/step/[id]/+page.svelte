@@ -49,7 +49,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.step.title} — Elmozza English</title>
+	<title>{data.step.title} — EL' Mozza English</title>
 </svelte:head>
 
 <SiteShell user={data.user} streak={data.user.current_streak} gems={data.game.gems} hearts={data.game.hearts}>

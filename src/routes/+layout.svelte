@@ -38,7 +38,7 @@
 	<link rel="apple-touch-icon" href="/icons/icon-192.png" />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
-	<meta name="apple-mobile-web-app-title" content="Elmozza" />
+	<meta name="apple-mobile-web-app-title" content="EL' Mozza" />
 	<meta name="theme-color" content="#FBFAF7" />
 </svelte:head>
 

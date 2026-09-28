@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 /*
- * Elmozza English — design tokens
+ * EL' Mozza English — design tokens
  *
  * Nuansa: KLINIK EL'MOZZA yang hangat, bukan galeri seni.
  *
@@ -27,7 +27,7 @@
 	/* Garis pemisah */
 	--color-rule: #f3e2ec;
 
-	/* Warna utama: pink Elmozza — sama dengan tombol di game */
+	/* Warna utama: pink EL' Mozza — sama dengan tombol di game */
 	--color-accent: #db2777;
 	--color-accent-deep: #be185d;
 	--color-accent-tint: #fdf2f8;

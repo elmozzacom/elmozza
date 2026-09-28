@@ -42,13 +42,13 @@
 </script>
 
 <svelte:head>
-	<title>English Daily Coach — Elmozza</title>
+	<title>English Daily Coach — EL' Mozza</title>
 	<meta name="description" content="Pilot English Daily Coach 14 Hari untuk level A1–A2." />
 </svelte:head>
 
 <main class="page">
-	<header class="site-header" aria-label="Navigasi Elmozza">
-		<a class="brand-logo" href="/" aria-label="Elmozza beranda">
+	<header class="site-header" aria-label="Navigasi EL' Mozza">
+		<a class="brand-logo" href="/" aria-label="EL' Mozza beranda">
 			<span class="brand-symbol" aria-hidden="true">e</span>
 			<span><b>El mozza</b><small>english course</small></span>
 		</a>
@@ -62,7 +62,7 @@
 	</header>
 
 	<header class="hero">
-		<div class="eyebrow">ELMOZZA • PILOT A1–A2</div>
+		<div class="eyebrow">EL' MOZZA • PILOT A1–A2</div>
 		<h1>English Daily Coach<br /><span>14 Hari</span></h1>
 		<p>Belajar percakapan sehari-hari dalam 5–10 menit: dialog, arti, kosakata, pola bahasa, latihan, dan kuis.</p>
 		<div class="progress-card">

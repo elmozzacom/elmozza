@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>Settings — Elmozza English</title>
+	<title>Settings — EL' Mozza English</title>
 </svelte:head>
 
 <SiteShell user={data.user} streak={data.user.current_streak} gems={data.game.gems} hearts={data.game.hearts}>

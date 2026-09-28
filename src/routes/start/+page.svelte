@@ -54,7 +54,7 @@
 </script>
 
 <svelte:head>
-	<title>This week’s board — Elmozza English</title>
+	<title>This week’s board — EL' Mozza English</title>
 	<meta
 		name="description"
 		content="The live honor board: the five highest weekly averages. Take today’s five-question quiz and climb it."

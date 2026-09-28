@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-	<title>Welcome — Elmozza English</title>
+	<title>Welcome — EL' Mozza English</title>
 </svelte:head>
 
 <SiteShell user={data.user}>

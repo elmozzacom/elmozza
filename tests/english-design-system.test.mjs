@@ -187,6 +187,6 @@ test('the demo lesson is public and complete', () => {
 
 test('brand wordmark and domain appear in the interface', () => {
   const shell = read('src/lib/components/SiteShell.svelte');
-  assert.match(shell, /Elmozza <em>English Quiz<\/em>/); // wordmark diganti 2026-09-27 atas permintaan Pak Dokter
+  assert.match(shell, /EL' Mozza <em>English Quiz<\/em>/); // wordmark EL' Mozza 2026-09-28 atas permintaan Pak Dokter
   assert.match(shell, /english\.elmozza\.com/);
 });

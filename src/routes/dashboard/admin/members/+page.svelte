@@ -11,7 +11,7 @@
 	};
 </script>
 
-<svelte:head><title>Daftar Member — Elmozza</title></svelte:head>
+<svelte:head><title>Daftar Member — EL' Mozza</title></svelte:head>
 
 <main>
 	<nav><a href="/dashboard">← Dashboard</a><span>{data.admin.role === 'owner' ? 'Super Admin' : 'Admin'}</span></nav>

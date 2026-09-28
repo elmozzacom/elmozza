@@ -6,7 +6,7 @@
 </script>
 
 <svelte:head>
-	<title>Start free — Elmozza English</title>
+	<title>Start free — EL' Mozza English</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

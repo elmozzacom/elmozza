@@ -7,7 +7,7 @@
 </script>
 
 <svelte:head>
-	<title>Questionnaires — Elmozza English</title>
+	<title>Questionnaires — EL' Mozza English</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

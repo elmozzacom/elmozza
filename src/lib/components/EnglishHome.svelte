@@ -24,16 +24,16 @@
 </script>
 
 <svelte:head>
-	<title>Elmozza — English Daily Coach</title>
+	<title>EL' Mozza — English Daily Coach</title>
 	<meta
 		name="description"
-		content="Elmozza English Course menghadirkan English Daily Coach 14 hari untuk latihan percakapan A1–A2."
+		content="EL' Mozza English Course menghadirkan English Daily Coach 14 hari untuk latihan percakapan A1–A2."
 	/>
 </svelte:head>
 
 <main class="page">
-	<header class="site-header" aria-label="Navigasi Elmozza">
-		<a class="brand-logo" href="/" aria-label="Elmozza beranda">
+	<header class="site-header" aria-label="Navigasi EL' Mozza">
+		<a class="brand-logo" href="/" aria-label="EL' Mozza beranda">
 			<span class="brand-symbol" aria-hidden="true">e</span>
 			<span><b>El mozza</b><small>english course</small></span>
 		</a>
@@ -51,7 +51,7 @@
 
 	<section class="hero" aria-labelledby="hero-title">
 		<div class="hero-copy">
-			<p class="eyebrow">ELMOZZA • ENGLISH DAILY COACH</p>
+			<p class="eyebrow">EL' MOZZA • ENGLISH DAILY COACH</p>
 			<h1 id="hero-title">Latihan English harian yang ringan, rapi, dan langsung dipraktikkan.</h1>
 			<p class="lead">
 				Mulai dari pilot <strong>English Daily Coach 14 Hari</strong> untuk level A1–A2:
@@ -81,7 +81,7 @@
 			<h2>Beranda sekarang menjadi pintu masuk ke Daily Coach.</h2>
 		</div>
 		<p>
-			Pengunjung Elmozza dapat langsung memulai program harian dari beranda. Navigasi utama,
+			Pengunjung EL' Mozza dapat langsung memulai program harian dari beranda. Navigasi utama,
 			tombol pembuka, dan kartu program membawa peserta ke kelas Daily Coach yang sama.
 		</p>
 	</section>
