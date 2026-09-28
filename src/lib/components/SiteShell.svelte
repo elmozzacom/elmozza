@@ -25,7 +25,7 @@
 <header class="masthead">
 	<a class="wordmark" href="/">
 		<span class="mark" aria-hidden="true">E</span>
-		<span>Elmozza <em>English</em></span>
+		<span>Elmozza <em>English Quiz</em></span>
 	</a>
 
 	<nav class="links" aria-label="Primary">
@@ -82,7 +82,7 @@
 <main id="main">{@render children()}</main>
 
 <footer class="foot">
-	<p class="wordmark-foot">Elmozza <em>English</em></p>
+	<p class="wordmark-foot">Elmozza <em>English Quiz</em></p>
 	<nav class="foot-links" aria-label="Footer">
 		<a href="/demo">Demo lesson</a>
 		<a href="/register">Start free</a>
@@ -129,6 +129,7 @@
 		font-size: 1.15rem;
 		font-weight: 600;
 		letter-spacing: -0.02em;
+		white-space: nowrap;
 	}
 	.wordmark em,
 	.wordmark-foot em {
