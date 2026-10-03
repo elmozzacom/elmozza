@@ -9,6 +9,7 @@ import { loadRlec } from './helpers/rlec-load.mjs';
 const root = new URL('..', import.meta.url);
 const read = (p) => fs.readFileSync(new URL(p, root), 'utf8');
 const MIGRATION = 'migrations/0009_rlec_core.sql';
+// Phase 2 (0010) adds link codes, tomorrow notes, and Learning Memory tables.
 const TABLES = [
 	'rlec_ai_usage',
 	'rlec_error_events',
@@ -16,9 +17,14 @@ const TABLES = [
 	'rlec_identity_links',
 	'rlec_learner_errors',
 	'rlec_learner_profiles',
+	'rlec_link_codes',
 	'rlec_scenarios',
 	'rlec_session_turns',
-	'rlec_sessions'
+	'rlec_sessions',
+	'rlec_skill_strength',
+	'rlec_skills',
+	'rlec_success_events',
+	'rlec_tomorrow_notes'
 ];
 const PATTERNS = [
 	'PAST_TENSE_OMISSION', 'ARTICLE_OMISSION', 'SV_AGREEMENT', 'PREPOSITION_CONFUSION', 'PLURAL_S_OMISSION',
@@ -51,7 +57,7 @@ test('rlec migration applies after 0001..0008 and re-applies cleanly (twice)', (
 	const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'rlec_%' ORDER BY name").all().map((r) => r.name);
 	assert.deepEqual(tables, TABLES);
 	const codes = db.prepare('SELECT code FROM rlec_error_patterns').all().map((r) => r.code);
-	assert.deepEqual(codes.sort(), [...PATTERNS].sort());
+	assert.deepEqual(codes.sort(), [...PATTERNS, 'UNCLASSIFIED'].sort(), '14 patterns + UNCLASSIFIED from 0010');
 	assert.equal(db.prepare('PRAGMA foreign_key_check').all().length, 0);
 	const cols = (t) => db.prepare(`PRAGMA table_info(${t})`).all().map((c) => c.name);
 	for (const c of ['model_route', 'cost_estimate_usd']) assert.ok(cols('rlec_sessions').includes(c), c);
@@ -80,6 +86,8 @@ const rlec = await loadRlec('db');
 
 function seeded() {
 	const raw = migratedDb(root);
+	// 0010 pilot seeds would collide with the fixed ids used here; Phase 2 tests cover them.
+	raw.exec("DELETE FROM rlec_scenarios WHERE source_ref LIKE 'RLEC-PILOT-%'");
 	raw.exec(`
 		INSERT INTO users(id, username, email) VALUES (1, 'ani', 'ani@contoh.test'), (2, 'budi', 'budi@contoh.test');
 		INSERT INTO rlec_scenarios(id, source_kind, source_ref, title, domain, cefr, difficulty, situation, status, owner_user_id) VALUES

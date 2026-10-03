@@ -18,6 +18,9 @@ type Env = {
 	TELEGRAM_BOT_TOKEN?: string;
 	TELEGRAM_QUIZ_CHAT_ID?: string;
 	TELEGRAM_INGEST_SECRET?: string;
+	RLEC_PILOT_USER_IDS?: string;
+	RLEC_COACH_ENABLED?: string;
+	RLEC_TELEGRAM_LINK_SECRET?: string;
 };
 
 declare global {

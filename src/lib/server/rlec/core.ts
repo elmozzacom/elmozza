@@ -7,6 +7,8 @@ export const SESSION_MODES = ['tomorrow', 'guided', 'free', 'comic', 'novel', 'b
 export const PREFERRED_MODES = ['guided', 'free'] as const;
 export const CORRECTION_STYLES = ['beginner', 'intermediate', 'advanced'] as const;
 export const SERVABLE_SCENARIO_STATUSES = ['active', 'qc_passed'] as const;
+export const SOURCE_KINDS = ['ecw', 'gcw', 'ecc', 'pcr_chapter', 'comic_page', 'tomorrow', 'manual'] as const;
+export type SourceKind = (typeof SOURCE_KINDS)[number];
 
 export type Cefr = (typeof CEFR_LEVELS)[number];
 export type SessionMode = (typeof SESSION_MODES)[number];
@@ -135,22 +137,24 @@ export function validateProfilePatch(body: unknown): Result<ProfilePatch> {
 
 // ---------------------------------------------------------------- scenarios
 
-export type ScenarioFilters = { domain: string | null; cefr: Cefr | null; q: string | null; limit: number; offset: number };
+export type ScenarioFilters = { domain: string | null; cefr: Cefr | null; q: string | null; limit: number; offset: number; source_kind?: SourceKind | null };
 
 export function parseScenarioFilters(params: URLSearchParams): Result<ScenarioFilters> {
 	const errors: Record<string, string> = {};
 	const domain = params.get('domain')?.trim() || null;
 	const cefrRaw = params.get('cefr')?.trim().toUpperCase() || null;
 	const q = params.get('q')?.trim() || null;
+	const sourceKind = params.get('source_kind')?.trim() || null;
 	const limit = params.has('limit') ? Number(params.get('limit')) : 20;
 	const offset = params.has('offset') ? Number(params.get('offset')) : 0;
 	if (domain !== null && !DOMAIN_RE.test(domain)) errors.domain = 'lowercase slug';
 	if (cefrRaw !== null && !oneOf(CEFR_LEVELS, cefrRaw)) errors.cefr = 'one of A1..C2';
 	if (q !== null && q.length > 80) errors.q = 'max 80 chars';
+	if (sourceKind !== null && !oneOf(SOURCE_KINDS, sourceKind)) errors.source_kind = SOURCE_KINDS.join('|');
 	if (!isInt(limit, 1, 50)) errors.limit = 'integer 1..50';
 	if (!isInt(offset, 0, 10_000)) errors.offset = 'integer 0..10000';
 	if (Object.keys(errors).length) return { ok: false, errors };
-	return { ok: true, value: { domain, cefr: cefrRaw as Cefr | null, q, limit, offset } };
+	return { ok: true, value: { domain, cefr: cefrRaw as Cefr | null, q, limit, offset, source_kind: sourceKind as SourceKind | null } };
 }
 
 /** Escape LIKE wildcards; use with `ESCAPE '\\'`. */
@@ -386,4 +390,82 @@ export function rankErrors<T extends RankableError>(rows: T[]): (T & { priority:
 export function dueErrors<T extends RankableError>(rows: T[], now: Date, limit = 10): (T & { priority: number })[] {
 	const cutoff = toSqliteDate(now);
 	return rankErrors(rows.filter((r) => r.next_review_at <= cutoff)).slice(0, limit);
+}
+
+// ---------------------------------------------------------------- Phase 2: pilot access, flags, BYO, Telegram link
+
+/** Comma/space separated user ids (env RLEC_PILOT_USER_IDS) -> Set of positive integers. */
+export function parseIdList(raw: unknown): Set<number> {
+	const out = new Set<number>();
+	for (const part of String(raw ?? '').split(/[\s,]+/)) {
+		if (/^[1-9][0-9]{0,15}$/.test(part)) out.add(Number(part));
+	}
+	return out;
+}
+
+/** Pilot scenarios are served to listed user ids and to superadmin only. */
+export function isPilotUser(user: { id: number; role: string } | null | undefined, pilotIdsRaw: unknown): boolean {
+	if (!user) return false;
+	return user.role === 'superadmin' || parseIdList(pilotIdsRaw).has(user.id);
+}
+
+export const flagOn = (raw: unknown) => ['1', 'true', 'on', 'yes'].includes(String(raw ?? '').trim().toLowerCase());
+
+/** /coach access: everyone logged in once RLEC_COACH_ENABLED is on; before that, pilot users only. */
+export function coachAccess(user: { id: number; role: string } | null | undefined, coachFlagRaw: unknown, pilotIdsRaw: unknown) {
+	const pilot = isPilotUser(user, pilotIdsRaw);
+	return { pilot, enabled: !!user && (flagOn(coachFlagRaw) || pilot) };
+}
+
+export const BYO_MINUTES = [5, 10, 20] as const;
+
+export function validateByoPackage(body: unknown): Result<{ scenario_id: number; minutes: number }> {
+	if (!isObject(body)) return { ok: false, errors: { body: 'JSON object required' } };
+	const errors: Record<string, string> = {};
+	if (!isInt(body.scenario_id, 1, Number.MAX_SAFE_INTEGER)) errors.scenario_id = 'positive integer';
+	const minutes = body.minutes ?? 10;
+	if (!(BYO_MINUTES as readonly unknown[]).includes(minutes)) errors.minutes = '5|10|20';
+	if (Object.keys(errors).length) return { ok: false, errors };
+	return { ok: true, value: { scenario_id: body.scenario_id as number, minutes: minutes as number } };
+}
+
+export function validateByoImport(body: unknown): Result<{ session_id: number | null; scenario_id: number | null; text: string }> {
+	if (!isObject(body)) return { ok: false, errors: { body: 'JSON object required' } };
+	const errors: Record<string, string> = {};
+	const sid = body.session_id ?? null;
+	if (sid !== null && !isInt(sid, 1, Number.MAX_SAFE_INTEGER)) errors.session_id = 'positive integer or null';
+	const scid = body.scenario_id ?? null;
+	if (scid !== null && !isInt(scid, 1, Number.MAX_SAFE_INTEGER)) errors.scenario_id = 'positive integer or null';
+	if (typeof body.text !== 'string' || body.text.trim().length < 10 || body.text.length > 12_000) errors.text = 'string, 10..12000 chars';
+	if (Object.keys(errors).length) return { ok: false, errors };
+	return { ok: true, value: { session_id: sid as number | null, scenario_id: scid as number | null, text: body.text as string } };
+}
+
+export const LINK_CODE_TTL_MS = 10 * 60_000;
+
+export function validateTelegramLink(body: unknown): Result<{ code: string; telegram_user_id: string }> {
+	if (!isObject(body)) return { ok: false, errors: { body: 'JSON object required' } };
+	const errors: Record<string, string> = {};
+	const code = typeof body.code === 'string' ? body.code.trim() : typeof body.code === 'number' ? String(body.code).padStart(6, '0') : '';
+	if (!/^\d{6}$/.test(code)) errors.code = '6 digits';
+	const tg = typeof body.telegram_user_id === 'number' ? String(body.telegram_user_id) : typeof body.telegram_user_id === 'string' ? body.telegram_user_id.trim() : '';
+	if (!/^[1-9]\d{0,19}$/.test(tg)) errors.telegram_user_id = 'numeric Telegram user id';
+	if (Object.keys(errors).length) return { ok: false, errors };
+	return { ok: true, value: { code, telegram_user_id: tg } };
+}
+
+/** Constant-time string compare for the server-to-server link secret. Empty secret never matches. */
+export function secretMatches(given: string | null | undefined, expected: string | null | undefined): boolean {
+	const a = String(given ?? '');
+	const b = String(expected ?? '');
+	if (!b || b.length < 16) return false;
+	let diff = a.length ^ b.length;
+	for (let i = 0; i < b.length; i += 1) diff |= (a.charCodeAt(i) || 0) ^ b.charCodeAt(i);
+	return diff === 0;
+}
+
+export function validateTomorrowNote(text: unknown): Result<string> {
+	const t = typeof text === 'string' ? text.trim() : '';
+	if (t.length < 3 || t.length > 500) return { ok: false, errors: { text: '3..500 chars' } };
+	return { ok: true, value: t };
 }

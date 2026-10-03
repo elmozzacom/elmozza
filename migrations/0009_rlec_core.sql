@@ -63,9 +63,10 @@ CREATE TABLE IF NOT EXISTS rlec_scenarios (
   correction_policy TEXT NOT NULL DEFAULT 'beginner' CHECK (correction_policy IN ('beginner','intermediate','advanced')),
   audio_refs_json TEXT NOT NULL DEFAULT '[]',
   quiz_refs_json TEXT NOT NULL DEFAULT '[]',
-  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','qc_passed','active','archived')),
+  -- 'pilot' = visible only to RLEC_PILOT_USER_IDS / superadmin (amended before first apply; branch unpushed).
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','pilot','qc_passed','active','archived')),
   qc_report_json TEXT,
-  created_by TEXT NOT NULL DEFAULT 'human' CHECK (created_by IN ('warehouse','llm','human')),
+  created_by TEXT NOT NULL DEFAULT 'human' CHECK (created_by IN ('warehouse','llm','human','hermes')),
   owner_user_id INTEGER,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (owner_user_id) REFERENCES users(id) ON DELETE CASCADE
