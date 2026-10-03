@@ -24,7 +24,8 @@ function seeded() {
 }
 
 function ecwFixture() {
-	const raw = new DatabaseSync(':memory:');
+	// Subset fixture: parent rows outside the 180-scenario sample are absent, so FK checks are off.
+	const raw = new DatabaseSync(':memory:', { enableForeignKeyConstraints: false });
 	raw.exec(read('tests/fixtures/ecw-mini.sql'));
 	return { raw, db: d1(raw) };
 }
@@ -178,7 +179,7 @@ test('FULL: pilot bank scenario -> card without AI and without credit', async ()
 	const { db, raw } = seeded();
 	const ai = mockAi([]);
 	const r = await pipeline.runTomorrow(deps(db, { provider: provider.workersAiProvider(ai) }), 1, 'Besok operan pasien ICU dengan dokter asing dari Australia', 'B1');
-	assert.equal(r.status, 'bank');
+	assert.equal(r.status, 'bank', JSON.stringify(r));
 	assert.equal(r.coverage, 'FULL');
 	assert.equal(r.charged, false);
 	assert.equal(ai.calls.length, 0);
@@ -238,7 +239,7 @@ test('PARTIAL: ECW anchors + Workers AI -> validated personal card, 1 credit, us
 	// same fence + level again -> own card, free, no AI call
 	await credits.grantCredits(db, 1, 1, 'admin', null, NOW);
 	const again = await pipeline.runTomorrow(deps(db, { provider: provider.workersAiProvider(ai), ecwDb: ecw.db }), 1, 'Besok jelaskan prosedur lagi ke keluarga pasien ICU', 'A2');
-	assert.equal(again.status, 'own');
+	assert.equal(again.status, 'own', JSON.stringify(again));
 	assert.equal(again.charged, false);
 	assert.equal(ai.calls.length, 1);
 	assert.equal(again.credits.balance, 1);
@@ -287,8 +288,8 @@ test('AI error, budget cap, no credit, unclear intent -> bank-only fallback', as
 	const ok = await pipeline.runTomorrow(deps(db, { provider: provider.workersAiProvider(mockAi([icuCard()])) }), 1, 'Besok jelaskan prosedur ke keluarga pasien di ICU', 'A2');
 	assert.equal(ok.status, 'generated');
 	const ai3 = mockAi([icuCard()]);
-	const none = await pipeline.runTomorrow(deps(db, { provider: provider.workersAiProvider(ai3) }), 1, 'Besok makan siang di restoran dengan tamu', 'A2');
-	assert.equal(none.reason, 'no_credit');
+	const none = await pipeline.runTomorrow(deps(db, { provider: provider.workersAiProvider(ai3) }), 1, 'Besok makan siang di restoran dengan tamu', 'B2'); // no B2 bank card -> needs the LLM
+	assert.equal(none.reason, 'no_credit', JSON.stringify(none));
 	assert.equal(ai3.calls.length, 0);
 
 	// unclear text: LLM intent call returns junk -> refund, 'unclear'

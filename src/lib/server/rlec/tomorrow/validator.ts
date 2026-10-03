@@ -120,6 +120,8 @@ export function validateCard(card: unknown, intent: Pick<TomorrowIntent, 'domain
 		if (m && line.learner) {
 			const label = m[1].trim().toLowerCase();
 			if (NOT_SPEAKERS.has(label)) continue;
+			// Coaching instructions such as 'Stay calm and say:' / 'Then ask:' are not speaker labels.
+			if (/\b(say|ask|answer|reply|tell (him|her|them))$/.test(label)) continue;
 			if (!lr.includes(label) && !label.includes('you')) errors.push(`role: ${line.field} is spoken by "${m[1]}", not the learner`);
 		}
 	}

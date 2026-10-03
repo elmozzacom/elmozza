@@ -55,7 +55,9 @@ test('rlec migration applies after 0001..0008 and re-applies cleanly (twice)', (
 	const after = db.prepare("SELECT name, sql FROM sqlite_master WHERE name NOT LIKE 'rlec_%' AND name NOT LIKE 'idx_rlec_%' ORDER BY name").all();
 	assert.deepEqual(after, before, 'existing schema untouched');
 	const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'rlec_%' ORDER BY name").all().map((r) => r.name);
-	assert.deepEqual(tables, TABLES);
+	// 0012 (Tomorrow Mode credits/cards) is applied by migratedDb too.
+	const TABLES_0012 = ['rlec_config', 'rlec_credit_balance', 'rlec_credit_ledger', 'rlec_tomorrow_cards'];
+	assert.deepEqual(tables, [...TABLES, ...TABLES_0012].sort());
 	const codes = db.prepare('SELECT code FROM rlec_error_patterns').all().map((r) => r.code);
 	assert.deepEqual(codes.sort(), [...PATTERNS, 'UNCLASSIFIED'].sort(), '14 patterns + UNCLASSIFIED from 0010');
 	assert.equal(db.prepare('PRAGMA foreign_key_check').all().length, 0);

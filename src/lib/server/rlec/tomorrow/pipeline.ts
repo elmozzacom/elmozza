@@ -208,7 +208,7 @@ async function startTomorrowSession(db: D1Database, userId: number, scenarioId: 
 
 async function saveCard(
 	db: D1Database,
-	v: { userId: number; noteId: number; scenarioId: number | null; sessionId: number | null; source: 'bank' | 'own' | 'llm'; coverage: Coverage; card: TomorrowCard; qc: ValidationResult | null; anchors: Anchor[]; model: string | null }
+	v: { userId: number; noteId: number; scenarioId: number | null; sessionId: number | null; source: 'bank' | 'own' | 'llm'; coverage: Coverage; card: TomorrowCard; qc: ValidationResult | null; anchors: Anchor[]; model: string | null; intent?: TomorrowIntent }
 ) {
 	const row = await db
 		.prepare(
@@ -222,9 +222,10 @@ async function saveCard(
 			v.sessionId,
 			v.source,
 			v.coverage,
-			v.card.domain_id || null,
-			v.card.place || null,
-			v.card.situation || null,
+			// Store the learner's intent fence (not the model's wording) so the same request finds this card again.
+			v.intent?.domain_id || v.card.domain_id || null,
+			v.intent?.place || v.card.place || null,
+			v.intent?.situation || v.card.situation || null,
 			v.card.level,
 			JSON.stringify(v.card),
 			v.qc ? JSON.stringify(v.qc) : null,
@@ -301,7 +302,8 @@ export async function runTomorrow(deps: PipelineDeps, userId: number, text: stri
 			card: retrieval.card,
 			qc: retrieval.qc,
 			anchors: [],
-			model: null
+			model: null,
+			intent
 		});
 		return {
 			ok: true,
@@ -395,7 +397,7 @@ export async function runTomorrow(deps: PipelineDeps, userId: number, text: stri
 			.prepare('UPDATE rlec_sessions SET scenario_id = ?, cost_estimate_usd = ? WHERE id = ? AND user_id = ?')
 			.bind(scenarioId, Math.round((costIdr / rate) * 1e6) / 1e6, sessionId, userId)
 			.run();
-		const cardId = await saveCard(db, { userId, noteId, scenarioId, sessionId, source: 'llm', coverage: retrieval.coverage, card, qc, anchors: retrieval.anchors, model: deps.provider.model });
+		const cardId = await saveCard(db, { userId, noteId, scenarioId, sessionId, source: 'llm', coverage: retrieval.coverage, card, qc, anchors: retrieval.anchors, model: deps.provider.model, intent });
 		return {
 			ok: true,
 			status: 'generated',
