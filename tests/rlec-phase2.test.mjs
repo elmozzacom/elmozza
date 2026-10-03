@@ -150,7 +150,7 @@ test('/coach access + door flag: off by default (pilot/superadmin only), on for 
 	for (const b of ['Tomorrow', 'Work', 'Healthcare', 'Travel', 'Read a Comic', 'Read a Story', 'Practice Conversation', 'Free Talk']) assert.ok(page.includes(`'${b}'`), b);
 	assert.match(page, /What do you need English for\?/);
 	assert.match(page, /Besok mau ngapain\?/);
-	assert.match(page, /Tomorrow Mode AI segera aktif/);
+	assert.match(page, /Tomorrow Pack/);
 	assert.match(page, /EL' Mozza/);
 	assert.doesNotMatch(page, /Elmozza/);
 });

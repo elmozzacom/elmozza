@@ -140,6 +140,109 @@
 			busy = false;
 		}
 	}
+	// ---- Tomorrow Pack (Level 0): free text -> one-screen card.
+	type Card = {
+		title: string;
+		level: string;
+		place: string;
+		situation: string;
+		opener: string;
+		phrases: string[];
+		ready_answers: { question: string; answer: string }[];
+		traps: { trap: string; fix: string }[];
+		safety_note?: string | null;
+	};
+	type Credits = { free_daily: number; free_used_today: number; free_left: number; balance: number };
+	type TomorrowResult = {
+		ok: boolean;
+		status: 'bank' | 'own' | 'generated' | 'fallback';
+		reason: string | null;
+		charged: boolean;
+		card: Card | null;
+		session_id: number | null;
+		suggestions: { id: number; title: string; cefr: string | null }[];
+		credits: Credits;
+	};
+	const SOURCE_LABEL: Record<string, string> = {
+		bank: 'Dari bank skenario',
+		own: 'Kartu kamu sebelumnya',
+		generated: 'Dibuat khusus untukmu',
+		llm: 'Dibuat khusus untukmu'
+	};
+	const REASON_MSG: Record<string, string> = {
+		no_credit: 'Kuota gratis hari ini sudah habis. Coba lagi besok, atau pakai skenario mirip di bawah.',
+		budget_cap: 'Pembuatan kartu baru sedang dibatasi bulan ini. Sementara, pakai skenario mirip di bawah.',
+		ai_error: 'AI sedang bermasalah dan kredit kamu tidak terpakai. Coba lagi sebentar lagi, atau pakai skenario di bawah.',
+		qc_failed: 'Kartu yang dibuat belum lolos cek kualitas, jadi kredit dikembalikan. Pakai skenario mirip di bawah dulu.',
+		unclear: 'Ceritanya belum cukup jelas. Sebut tempat dan dengan siapa, misalnya: "Besok kontrol ke dokter gigi".',
+		llm_disabled: 'Kartu khusus belum aktif untuk akunmu. Pilih skenario yang mirip di bawah.',
+		no_ai: 'AI belum tersambung saat ini. Pilih skenario yang mirip di bawah.'
+	};
+	const OUTCOME_BUTTONS = [
+		{ id: 'went_well', label: '😊 Lancar' },
+		{ id: 'mixed', label: '😐 Campur' },
+		{ id: 'hard', label: '😣 Susah' },
+		{ id: 'did_not_happen', label: '🚫 Tidak jadi' }
+	];
+
+	let tmrText = $state('');
+	let tmrBusy = $state(false);
+	let tmrError = $state('');
+	let tmr = $state<TomorrowResult | null>(null);
+	let tmrCard = $state<{ card: Card; source: string } | null>(null);
+	let credits = $state<Credits | null>(null);
+	let pending = $state<{ session_id: number; title: string | null } | null>(null);
+	let outcomeDone = $state('');
+
+	async function loadTomorrow() {
+		try {
+			const res = await fetch('/api/rlec/tomorrow');
+			if (!res.ok) return;
+			const j = await res.json();
+			credits = j.credits ?? null;
+			pending = j.pending_outcome ?? null;
+			if (j.last_card && !tmrCard) tmrCard = { card: j.last_card.card, source: j.last_card.source };
+		} catch {
+			/* Tomorrow Pack state is optional */
+		}
+	}
+	$effect(() => {
+		loadTomorrow();
+	});
+
+	async function makeTomorrow() {
+		tmrBusy = true;
+		tmrError = '';
+		try {
+			const r = (await post('/api/rlec/tomorrow', { text: tmrText.trim() })) as TomorrowResult;
+			tmr = r;
+			credits = r.credits;
+			tmrCard = r.card ? { card: r.card, source: r.status } : null;
+		} catch (e) {
+			tmrError = (e as Error).message;
+		} finally {
+			tmrBusy = false;
+		}
+	}
+
+	async function sendOutcome(id: string) {
+		if (!pending) return;
+		try {
+			await post('/api/rlec/tomorrow/outcome', { session_id: pending.session_id, outcome: id });
+			outcomeDone = id === 'went_well' ? 'Mantap! Tersimpan.' : 'Terima kasih, tersimpan. Kita latih lagi bagian yang susah.';
+			pending = null;
+		} catch (e) {
+			tmrError = (e as Error).message;
+		}
+	}
+
+	function practiceSuggestion(id: number) {
+		const s = data.scenarios.find((x) => x.id === id);
+		if (!s) return;
+		pick(DOORS[6]);
+		started = true;
+		getPackage(s);
+	}
 </script>
 
 <svelte:head>
@@ -152,6 +255,69 @@
 
 		{#if !door}
 			<h1>What do you need English for?</h1>
+			{#if pending}
+				<div class="progress" data-testid="rlec-yesterday">
+					<h3>Bagaimana kemarin?</h3>
+					{#if pending.title}<p class="note">{pending.title}</p>{/if}
+					<div class="chips">
+						{#each OUTCOME_BUTTONS as o}
+							<button type="button" class="chip" onclick={() => sendOutcome(o.id)}>{o.label}</button>
+						{/each}
+					</div>
+				</div>
+			{:else if outcomeDone}
+				<p class="note">{outcomeDone}</p>
+			{/if}
+			<div class="progress tpack" data-testid="rlec-tomorrow-pack">
+				<h3>Tomorrow Pack <em class="badge free">Free</em></h3>
+				<label for="tpack" class="note">Ceritakan rencanamu besok (bahasa Indonesia boleh). Kartu siap dibaca dalam 1 layar.</label>
+				<textarea id="tpack" rows="3" maxlength="1000" bind:value={tmrText} placeholder="Besok mau ngapain?"></textarea>
+				<button type="button" class="button small" disabled={tmrBusy || !tmrText.trim()} onclick={makeTomorrow}>{tmrBusy ? 'Menyiapkan kartu…' : 'Buat kartu'}</button>
+				{#if credits}
+					<p class="hint">Sisa gratis hari ini: {credits.free_left}/{credits.free_daily} · Kredit: {credits.balance}</p>
+				{/if}
+				{#if tmrError}<p class="err">{tmrError}</p>{/if}
+				{#if tmr?.status === 'fallback'}
+					<p class="soon">{REASON_MSG[tmr.reason ?? ''] ?? 'Kartu khusus belum bisa dibuat. Pakai skenario mirip di bawah.'}</p>
+					{#if tmr.suggestions.length}
+						<ul class="scenarios">
+							{#each tmr.suggestions as sg}
+								<li>
+									<button type="button" onclick={() => practiceSuggestion(sg.id)}>
+										<span class="lvl">{sg.cefr ?? '—'}</span>
+										<strong>{sg.title}</strong>
+									</button>
+								</li>
+							{/each}
+						</ul>
+					{/if}
+				{/if}
+				{#if tmrCard}
+					{@const c = tmrCard.card}
+					<article class="tcard" data-testid="tomorrow-card">
+						<p class="label-util">{SOURCE_LABEL[tmrCard.source] ?? ''}{tmr?.charged ? ' · 1 kredit terpakai' : ''}</p>
+						<h3>{c.title} <span class="lvl">{c.level}</span></h3>
+						{#if c.place || c.situation}<p class="hint">{[c.place, c.situation].filter(Boolean).join(' · ')}</p>{/if}
+						<p class="label-util">Kalimat pembuka</p>
+						<p class="opener">“{c.opener}”</p>
+						<p class="label-util">5 kalimat penting</p>
+						<ol>{#each c.phrases as ph}<li>{ph}</li>{/each}</ol>
+						<p class="label-util">Kalau ditanya…</p>
+						<ul class="qa">
+							{#each c.ready_answers as qa}
+								<li><span class="q">{qa.question}</span><strong>{qa.answer}</strong></li>
+							{/each}
+						</ul>
+						<p class="label-util">Hati-hati</p>
+						<ul class="qa">
+							{#each c.traps as t}
+								<li><s>{t.trap}</s><strong>→ {t.fix}</strong></li>
+							{/each}
+						</ul>
+						{#if c.safety_note}<p class="note">⚠️ {c.safety_note}</p>{/if}
+					</article>
+				{/if}
+			</div>
 			{#if progress && (progress.recent_wins.length || progress.due_reviews.items.length)}
 				<div class="progress" data-testid="rlec-progress">
 					<h3>Progres saya</h3>
@@ -210,9 +376,9 @@
 						<button type="submit" class="button small">Simpan</button>
 						{#if form?.error}<p class="err">{form.error}</p>{/if}
 						{#if form?.saved || data.lastNote}
-							<p class="note">Tersimpan. <strong>Tomorrow Mode AI segera aktif</strong> — nanti skenario dibuat otomatis dari kalimat ini. Untuk sekarang, pilih skenario yang paling mirip di bawah.</p>
+							<p class="note">Tersimpan. Mau kartu siap pakai? Buka <strong>Tomorrow Pack</strong> di halaman utama Coach. Atau pilih skenario yang paling mirip di bawah.</p>
 						{:else}
-							<p class="note"><strong>Tomorrow Mode AI segera aktif.</strong> Untuk sekarang, pilih skenario yang paling mirip di bawah.</p>
+							<p class="note">Kartu otomatis ada di <strong>Tomorrow Pack</strong> (halaman utama Coach). Atau pilih skenario yang paling mirip di bawah.</p>
 						{/if}
 					</form>
 				{/if}
@@ -510,6 +676,46 @@
 		margin-left: 0.4rem;
 		font-family: var(--font-mono);
 		font-size: 0.7rem;
+		color: var(--color-ink-muted);
+	}
+	.tpack {
+		display: grid;
+		gap: 0.55rem;
+	}
+	.badge.free {
+		background: var(--color-accent-tint);
+		color: var(--color-accent-deep);
+		vertical-align: middle;
+	}
+	.tcard {
+		display: grid;
+		gap: 0.35rem;
+		padding: 0.85rem;
+		border: 1px solid var(--color-accent);
+		border-radius: 0.75rem;
+		background: var(--color-paper);
+	}
+	.tcard h3,
+	.tcard p {
+		margin: 0;
+	}
+	.tcard ol,
+	.tcard ul {
+		margin: 0;
+		padding-left: 1.1rem;
+		display: grid;
+		gap: 0.25rem;
+	}
+	.opener {
+		font-size: 1.05rem;
+		font-weight: 600;
+	}
+	.qa li {
+		display: grid;
+		gap: 0.1rem;
+	}
+	.qa .q {
+		font-size: 0.85rem;
 		color: var(--color-ink-muted);
 	}
 </style>

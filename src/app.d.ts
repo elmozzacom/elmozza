@@ -1,7 +1,7 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 
-import type { D1Database } from '@cloudflare/workers-types';
+import type { Ai, D1Database, VectorizeIndex } from '@cloudflare/workers-types';
 import type { AuthUser } from '$lib/server/auth';
 
 type Env = {
@@ -12,7 +12,9 @@ type Env = {
 	VAPID_PUBLIC_KEY?: string;
 	VAPID_PRIVATE_KEY?: string;
 	AI_CONVERSATION?: string;
-	AI?: unknown;
+	AI?: Ai;
+	ECW_DB?: D1Database;
+	ECW_VEC?: VectorizeIndex;
 	TELEGRAM_BOT_URL?: string;
 	QUIZ_PUBLISH_SECRET?: string;
 	TELEGRAM_BOT_TOKEN?: string;

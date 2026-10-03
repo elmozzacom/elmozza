@@ -8,3 +8,16 @@ binding = "DB"
 database_name = "elmozza-db"
 # Replace with your Cloudflare D1 database ID
 database_id = "75491b81-a886-41cf-80e7-66156befcd4e"
+
+# Tomorrow Mode (RLEC Level 0): Workers AI + read-only ECW warehouse + its Vectorize index.
+[ai]
+binding = "AI"
+
+[[d1_databases]]
+binding = "ECW_DB"
+database_name = "ecw-warehouse-db"
+database_id = "b8e1317b-9d0b-4059-89b3-3cd8fd76f7e0"
+
+[[vectorize]]
+binding = "ECW_VEC"
+index_name = "ecw-warehouse-g2-dev"
