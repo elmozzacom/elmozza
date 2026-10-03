@@ -16,7 +16,7 @@
 {#if data.surface === 'brand'}
 	<BrandHome />
 {:else}
-	<EnglishLanding user={data.user} board={data.board} />
+	<EnglishLanding user={data.user} coach={data.coach} board={data.board} />
 {/if}
 
 <style>

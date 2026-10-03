@@ -3,6 +3,7 @@ import type { PageServerLoad } from './$types';
 import { env as dyn } from '$env/dynamic/private';
 import { siteFlag, weeklyBoard } from '$lib/server/board';
 import { redirect } from '@sveltejs/kit';
+import { coachAccessFor } from '$lib/server/rlec/env';
 
 /** Cookie that records the visitor has already seen the gate page. */
 const GATE_COOKIE = 'seen_board_gate';
@@ -44,6 +45,7 @@ export const load: PageServerLoad = async ({ url, locals, platform, cookies }) =
 	return {
 		surface: brand ? 'brand' : 'english',
 		user: locals.user ? { username: locals.user.username, role: locals.user.role } : null,
+		coach: !brand && coachAccessFor(platform, locals.user).enabled,
 		board: { showTeaser, teaser, showTelegram, telegramUrl }
 	};
 };

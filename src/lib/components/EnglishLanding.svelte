@@ -6,9 +6,12 @@
 
 	let {
 		user = null,
+		coach = false,
 		board = { showTeaser: false, teaser: [], showTelegram: false, telegramUrl: '' }
 	}: {
 		user?: { username: string; role: string } | null;
+		/** Real-Life English Coach door (RLEC_COACH_ENABLED or pilot user). */
+		coach?: boolean;
 		board?: {
 			showTeaser: boolean;
 			teaser: Array<{ nickname: string; avgPct: number }>;
@@ -25,6 +28,13 @@
 </script>
 
 <SiteShell {user}>
+	{#if coach}
+		<a class="coach-door" href="/coach">
+			<span class="label-util">Real-Life English Coach</span>
+			<strong>What do you need English for?</strong>
+			<span class="coach-sub">Latihan untuk besok, kerja, rumah sakit, perjalanan &rarr;</span>
+		</a>
+	{/if}
 	<!-- THE SIGNATURE MOMENT -->
 	<ExplodedSentence data={SIGNATURE} mode="scroll" note={SIGNATURE_NOTE} heading />
 
@@ -183,6 +193,25 @@
 </SiteShell>
 
 <style>
+	.coach-door {
+		display: grid;
+		gap: 0.2rem;
+		max-width: 72rem;
+		margin: 0.75rem auto 0;
+		margin-inline: clamp(1rem, 5vw, 3.5rem);
+		padding: 0.9rem 1.1rem;
+		border: 1px solid var(--color-accent);
+		border-radius: 0.75rem;
+		background: var(--color-accent-tint);
+		color: var(--color-accent-deep);
+		text-decoration: none;
+	}
+	.coach-door strong {
+		font-size: 1.1rem;
+	}
+	.coach-sub {
+		font-size: 0.85rem;
+	}
 	.band {
 		min-width: 0;
 		max-width: 72rem;

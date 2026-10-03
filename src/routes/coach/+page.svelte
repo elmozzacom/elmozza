@@ -1,0 +1,421 @@
+<script lang="ts">
+	import SiteShell from '$lib/components/SiteShell.svelte';
+	import { enhance } from '$app/forms';
+
+	let { data, form } = $props();
+
+	type Door = { id: string; label: string; hint: string; domains?: string[]; sourceKind?: string; soon?: boolean };
+	// Spec section 18: the eight doors, in order.
+	const DOORS: Door[] = [
+		{ id: 'tomorrow', label: 'Tomorrow', hint: 'Latihan untuk kejadian besok' },
+		{ id: 'work', label: 'Work', hint: 'Rapat, vendor, konferensi', domains: ['workplace', 'conference'] },
+		{ id: 'healthcare', label: 'Healthcare', hint: 'ICU, keluarga pasien', domains: ['healthcare'] },
+		{ id: 'travel', label: 'Travel', hint: 'Bandara, hotel, taksi online', domains: ['travel'] },
+		{ id: 'comic', label: 'Read a Comic', hint: 'Komik jadi latihan bicara', sourceKind: 'comic_page' },
+		{ id: 'story', label: 'Read a Story', hint: 'Novel jadi latihan bicara', sourceKind: 'pcr_chapter' },
+		{ id: 'practice', label: 'Practice Conversation', hint: 'Semua skenario yang tersedia' },
+		{ id: 'free', label: 'Free Talk', hint: 'Ngobrol bebas dengan AI', soon: true }
+	];
+	const LEVELS = ['A2', 'B1', 'B2'];
+	const MINUTES = [5, 10, 20];
+
+	type Scenario = (typeof data.scenarios)[number];
+	type ImportResult = {
+		errors: { pattern_code: string; pattern_text: string | null; wrong: string | null; fixed: string | null; classified: boolean }[];
+		wins: { text: string; skill_code: string; kind: string }[];
+		confidence_tip: string | null;
+		warnings: string[];
+	};
+
+	let door = $state<Door | null>(null);
+	let level = $state('A2');
+	let minutes = $state(10);
+	let started = $state(false);
+	let chosen = $state<Scenario | null>(null);
+	let pkg = $state('');
+	let copied = $state(false);
+	let busy = $state(false);
+	let problem = $state('');
+	let report = $state('');
+	let imported = $state<ImportResult | null>(null);
+
+	const list = $derived.by(() => {
+		if (!door || door.soon) return [] as Scenario[];
+		const d = door;
+		let rows = data.scenarios;
+		if (d.id === 'tomorrow') rows = rows.filter((s) => s.status === 'pilot' || s.source_kind === 'tomorrow');
+		else if (d.domains) rows = rows.filter((s) => d.domains!.includes(s.domain));
+		else if (d.sourceKind) rows = rows.filter((s) => s.source_kind === d.sourceKind);
+		return [...rows].sort((a, b) => Number(b.cefr === level) - Number(a.cefr === level));
+	});
+
+	function pick(d: Door) {
+		door = d;
+		started = false;
+		chosen = null;
+		pkg = '';
+		imported = null;
+		problem = '';
+	}
+
+	async function post(url: string, body: unknown) {
+		const res = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+		const json = await res.json().catch(() => ({}));
+		if (!res.ok || json.ok === false) throw new Error(json.message ?? 'Gagal. Coba lagi.');
+		return json;
+	}
+
+	async function start() {
+		started = true;
+		fetch('/api/rlec/me', {
+			method: 'PATCH',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ cefr_self: level, session_minutes_default: minutes })
+		}).catch(() => {});
+	}
+
+	async function getPackage(s: Scenario) {
+		chosen = s;
+		busy = true;
+		problem = '';
+		copied = false;
+		imported = null;
+		try {
+			pkg = (await post('/api/rlec/byo/package', { scenario_id: s.id, minutes })).text;
+		} catch (e) {
+			problem = (e as Error).message;
+		} finally {
+			busy = false;
+		}
+	}
+
+	async function copy() {
+		try {
+			await navigator.clipboard.writeText(pkg);
+			copied = true;
+		} catch {
+			(document.getElementById('pkg') as HTMLTextAreaElement | null)?.select();
+			problem = 'Salin manual: teks sudah diblok, tekan Ctrl+C / tahan lalu Salin.';
+		}
+	}
+
+	async function sendReport() {
+		busy = true;
+		problem = '';
+		try {
+			imported = await post('/api/rlec/byo/import', { scenario_id: chosen?.id ?? null, text: report });
+		} catch (e) {
+			problem = (e as Error).message;
+		} finally {
+			busy = false;
+		}
+	}
+</script>
+
+<svelte:head>
+	<title>Real-Life English Coach — EL' Mozza English</title>
+</svelte:head>
+
+<SiteShell user={data.user}>
+	<section class="coach">
+		<p class="label-util">EL' Mozza · Real-Life English Coach{data.pilot ? ' · pilot' : ''}</p>
+
+		{#if !door}
+			<h1>What do you need English for?</h1>
+			<div class="doors">
+				{#each DOORS as d}
+					<button type="button" class="door" onclick={() => pick(d)}>
+						<strong>{d.label}</strong>
+						<span>{d.hint}</span>
+						{#if d.soon}<em class="badge">Segera hadir</em>{/if}
+					</button>
+				{/each}
+			</div>
+		{:else}
+			<button type="button" class="back" onclick={() => (door = null)}>← Semua pilihan</button>
+			<h1>{door.label}</h1>
+
+			{#if door.soon}
+				<p class="soon">Segera hadir. Fitur ini sedang disiapkan. Sementara itu, coba <button type="button" class="link" onclick={() => pick(DOORS[6])}>Practice Conversation</button>.</p>
+			{:else if !started}
+				<div class="setup">
+					<p class="label-util">Choose level</p>
+					<div class="chips">
+						{#each LEVELS as l}
+							<button type="button" class="chip" class:on={level === l} onclick={() => (level = l)}>{l}</button>
+						{/each}
+					</div>
+					<p class="label-util">Choose time</p>
+					<div class="chips">
+						{#each MINUTES as m}
+							<button type="button" class="chip" class:on={minutes === m} onclick={() => (minutes = m)}>{m} min</button>
+						{/each}
+					</div>
+					<button type="button" class="button" onclick={start}>Start</button>
+				</div>
+			{:else}
+				{#if door.id === 'tomorrow'}
+					<form method="POST" action="?/tomorrow" use:enhance class="tomorrow">
+						<label for="tmr"><strong>Besok mau ngapain?</strong></label>
+						<textarea id="tmr" name="text" rows="2" maxlength="500" placeholder="Contoh: Besok rapat online, saya harus kasih update singkat.">{form?.saved ?? data.lastNote ?? ''}</textarea>
+						<button type="submit" class="button small">Simpan</button>
+						{#if form?.error}<p class="err">{form.error}</p>{/if}
+						{#if form?.saved || data.lastNote}
+							<p class="note">Tersimpan. <strong>Tomorrow Mode AI segera aktif</strong> — nanti skenario dibuat otomatis dari kalimat ini. Untuk sekarang, pilih skenario yang paling mirip di bawah.</p>
+						{:else}
+							<p class="note"><strong>Tomorrow Mode AI segera aktif.</strong> Untuk sekarang, pilih skenario yang paling mirip di bawah.</p>
+						{/if}
+					</form>
+				{/if}
+
+				{#if !chosen}
+					{#if list.length}
+						<ul class="scenarios">
+							{#each list as s}
+								<li>
+									<button type="button" onclick={() => getPackage(s)}>
+										<span class="lvl">{s.cefr ?? '—'}</span>
+										<strong>{s.title}</strong>
+										{#if s.place}<span class="place">{s.place}</span>{/if}
+									</button>
+								</li>
+							{/each}
+						</ul>
+					{:else}
+						<p class="soon">Segera hadir. Belum ada skenario untuk pilihan ini.</p>
+					{/if}
+				{:else}
+					<button type="button" class="back" onclick={() => { chosen = null; pkg = ''; imported = null; }}>← Pilih skenario lain</button>
+					<h2>{chosen.title} <span class="lvl">{chosen.cefr}</span></h2>
+					{#if busy && !pkg}<p>Menyiapkan paket…</p>{/if}
+					{#if pkg}
+						<ol class="steps">
+							<li>Tekan <strong>Salin paket</strong>.</li>
+							<li>Buka ChatGPT, Gemini, atau Claude. Tempel (paste), lalu kirim.</li>
+							<li>Latihan {minutes} menit. Ketik <code>RETRY</code> untuk mengulang, <code>REVIEW</code> untuk lihat kesalahan.</li>
+							<li>Selesai? Ketik <code>END</code>. Salin blok <code>SESSION REPORT</code> dan tempel di bawah.</li>
+						</ol>
+						<button type="button" class="button" onclick={copy}>{copied ? 'Tersalin ✓' : 'Salin paket'}</button>
+						<textarea id="pkg" class="pkg" readonly rows="10" value={pkg}></textarea>
+
+						<label for="rep"><strong>Tempel laporan sesi di sini</strong></label>
+						<textarea id="rep" rows="6" bind:value={report} placeholder="=== SESSION REPORT === …"></textarea>
+						<button type="button" class="button" disabled={busy || report.trim().length < 10} onclick={sendReport}>Simpan laporan</button>
+					{/if}
+					{#if problem}<p class="err">{problem}</p>{/if}
+
+					{#if imported}
+						<div class="result">
+							{#if imported.wins.length}
+								<h3>Yang sudah bagus</h3>
+								<ul>{#each imported.wins as w}<li>✓ {w.text}</li>{/each}</ul>
+							{/if}
+							<h3>Yang perlu dilatih</h3>
+							{#if imported.errors.length}
+								<ul>
+									{#each imported.errors as e}
+										<li>
+											{#if e.wrong}<s>{e.wrong}</s>{/if}
+											{#if e.fixed} → <strong>{e.fixed}</strong>{/if}
+											<span class="code">{e.classified ? e.pattern_code : 'belum terklasifikasi'}</span>
+										</li>
+									{/each}
+								</ul>
+							{:else}
+								<p>Tidak ada kesalahan tercatat.</p>
+							{/if}
+							{#if imported.confidence_tip}<p class="note">💡 {imported.confidence_tip}</p>{/if}
+							{#each imported.warnings as w}<p class="hint">{w}</p>{/each}
+						</div>
+					{/if}
+				{/if}
+			{/if}
+		{/if}
+	</section>
+</SiteShell>
+
+<style>
+	.coach {
+		max-width: 40rem;
+		margin: 0 auto;
+		padding: 1.25rem clamp(1rem, 5vw, 2rem) 4rem;
+		display: grid;
+		gap: 1rem;
+	}
+	h1 {
+		margin: 0;
+		font-size: clamp(1.6rem, 6vw, 2.2rem);
+	}
+	h2 {
+		margin: 0.5rem 0 0;
+		font-size: 1.3rem;
+	}
+	.doors {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.65rem;
+	}
+	.door {
+		position: relative;
+		display: grid;
+		gap: 0.25rem;
+		text-align: left;
+		min-height: 5.2rem;
+		padding: 0.85rem;
+		border: 1px solid var(--color-rule);
+		border-radius: 0.75rem;
+		background: var(--color-paper-raised);
+		font: inherit;
+		color: inherit;
+		cursor: pointer;
+	}
+	.door:hover,
+	.door:focus-visible {
+		border-color: var(--color-accent);
+	}
+	.door strong {
+		font-size: 1.02rem;
+	}
+	.door span {
+		font-size: 0.82rem;
+		color: var(--color-ink-muted);
+	}
+	.badge {
+		justify-self: start;
+		font-style: normal;
+		font-size: 0.7rem;
+		padding: 0.1rem 0.45rem;
+		border-radius: 999px;
+		background: var(--color-warn-tint);
+		color: var(--color-warn-deep);
+	}
+	.back,
+	.link {
+		justify-self: start;
+		background: none;
+		border: 0;
+		padding: 0;
+		font: inherit;
+		color: var(--color-accent);
+		cursor: pointer;
+	}
+	.link {
+		text-decoration: underline;
+	}
+	.setup,
+	.tomorrow {
+		display: grid;
+		gap: 0.6rem;
+	}
+	.chips {
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+	.chip {
+		min-width: 4.2rem;
+		padding: 0.6rem 0.9rem;
+		border: 1px solid var(--color-rule);
+		border-radius: 0.5rem;
+		background: var(--color-paper-raised);
+		font: inherit;
+		cursor: pointer;
+	}
+	.chip.on {
+		border-color: var(--color-accent);
+		background: var(--color-accent-tint);
+		color: var(--color-accent-deep);
+		font-weight: 600;
+	}
+	.button {
+		justify-self: start;
+		padding: 0.8rem 1.4rem;
+		border: 0;
+		border-radius: 0.5rem;
+		background: var(--color-accent);
+		color: #fff;
+		font: inherit;
+		font-weight: 600;
+		cursor: pointer;
+	}
+	.button.small {
+		padding: 0.55rem 1rem;
+	}
+	.button:disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
+	textarea {
+		width: 100%;
+		box-sizing: border-box;
+		padding: 0.7rem;
+		border: 1px solid var(--color-rule);
+		border-radius: 0.5rem;
+		font: inherit;
+		background: var(--color-paper-raised);
+	}
+	.pkg {
+		font-family: var(--font-mono);
+		font-size: 0.78rem;
+	}
+	.scenarios {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: 0.5rem;
+	}
+	.scenarios button {
+		width: 100%;
+		display: grid;
+		grid-template-columns: auto 1fr;
+		column-gap: 0.6rem;
+		text-align: left;
+		padding: 0.75rem;
+		border: 1px solid var(--color-rule);
+		border-radius: 0.6rem;
+		background: var(--color-paper-raised);
+		font: inherit;
+		color: inherit;
+		cursor: pointer;
+	}
+	.scenarios .place {
+		grid-column: 2;
+		font-size: 0.8rem;
+		color: var(--color-ink-muted);
+	}
+	.lvl {
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		color: var(--color-accent-deep);
+	}
+	.steps {
+		margin: 0;
+		padding-left: 1.2rem;
+		display: grid;
+		gap: 0.3rem;
+	}
+	.note,
+	.hint {
+		margin: 0;
+		font-size: 0.88rem;
+		color: var(--color-ink-muted);
+	}
+	.soon {
+		padding: 0.9rem;
+		border: 1px dashed var(--color-rule);
+		border-radius: 0.6rem;
+	}
+	.err {
+		color: var(--color-warn-deep);
+	}
+	.result ul {
+		padding-left: 1rem;
+	}
+	.code {
+		margin-left: 0.4rem;
+		font-family: var(--font-mono);
+		font-size: 0.7rem;
+		color: var(--color-ink-muted);
+	}
+</style>

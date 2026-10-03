@@ -139,7 +139,7 @@ export function buildByoPackage(scenario: ByoScenario, profile: ByoProfile, topE
 		weak.length
 			? `MY KNOWN WEAK POINTS (force me to use them): ${weak.join(', ')}.`
 			: 'MY KNOWN WEAK POINTS (force me to use them): none recorded yet. Watch my mistakes and use them in REVIEW.',
-		`UNEXPECTED CHALLENGE: On turn ${challengeTurn(minutes)}, ${challenge}`,
+		`UNEXPECTED CHALLENGE (use it around turn ${challengeTurn(minutes)}): ${challenge}`,
 		`CORRECTION POLICY: ${CORRECTION_TEXT[style]}`,
 		'If I type RETRY, let me say my last line again.',
 		'If I type REVIEW, stop the role and list my top 3 mistakes with a fix.',

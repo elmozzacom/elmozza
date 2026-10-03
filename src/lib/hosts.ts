@@ -16,7 +16,8 @@ const APP_PATHS = [
 	'/practice',
 	'/profile',
 	'/settings',
-	'/leaderboard'
+	'/leaderboard',
+	'/coach'
 ];
 
 export function hostnameOf(url: URL) {
