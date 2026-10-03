@@ -187,6 +187,19 @@ test('the demo lesson is public and complete', () => {
 
 test('brand wordmark and domain appear in the interface', () => {
   const shell = read('src/lib/components/SiteShell.svelte');
-  assert.match(shell, /EL' Mozza <em>English Quiz<\/em>/); // wordmark EL' Mozza 2026-09-28 atas permintaan Pak Dokter
   assert.match(shell, /english\.elmozza\.com/);
+});
+
+test('shared EL’ Mozza lockup (novel icon + wordmark) replaces the English Quiz suffix — owner request 2026-10-03', () => {
+  const lockup = read('src/lib/components/BrandLockup.svelte');
+  assert.match(lockup, /aria-label="EL’ Mozza"/);
+  assert.match(lockup, /<title>EL’ Mozza<\/title>/);
+  assert.match(lockup, /fill="#e2674a"/); // "Mozza" accent as on novel.elmozza.com
+  assert.match(lockup, /fill-rule="evenodd"/); // novel open-book icon path
+  for (const file of ['src/lib/components/SiteShell.svelte', 'src/lib/components/AuthPanel.svelte']) {
+    const src = read(file);
+    assert.match(src, /<BrandLockup/, `${file} must use the shared lockup`);
+    assert.doesNotMatch(src, /English Quiz/, `${file} brand must not carry the English Quiz suffix`);
+    assert.doesNotMatch(src, /class="mark"/, `${file} old E roundel removed`);
+  }
 });

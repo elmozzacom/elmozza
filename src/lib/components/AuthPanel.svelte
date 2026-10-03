@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BrandLockup from './BrandLockup.svelte';
 	let {
 		title,
 		lede,
@@ -7,9 +8,8 @@
 </script>
 
 <div class="auth-page">
-	<a class="wordmark" href="/">
-		<span class="mark" aria-hidden="true">E</span>
-		<span>EL' Mozza <em>English Quiz</em></span>
+	<a class="wordmark" href="/" aria-label="EL’ Mozza — home">
+		<BrandLockup />
 	</a>
 
 	<div class="panel">
@@ -39,20 +39,6 @@
 		font-family: var(--font-display);
 		font-size: 1.15rem;
 		font-weight: 600;
-	}
-	.wordmark em {
-		font-style: italic;
-		color: var(--color-accent);
-	}
-	.mark {
-		display: grid;
-		place-items: center;
-		width: 1.85rem;
-		height: 1.85rem;
-		border: 1px solid var(--color-accent);
-		border-radius: 50%;
-		color: var(--color-accent);
-		font-size: 0.85rem;
 	}
 
 	.panel {

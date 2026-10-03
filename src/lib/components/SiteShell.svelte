@@ -1,4 +1,5 @@
 <script lang="ts">
+	import BrandLockup from './BrandLockup.svelte';
 	let {
 		user = null,
 		streak = null,
@@ -23,9 +24,8 @@
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="masthead">
-	<a class="wordmark" href="/">
-		<span class="mark" aria-hidden="true">E</span>
-		<span>EL' Mozza <em>English Quiz</em></span>
+	<a class="wordmark" href="/" aria-label="EL’ Mozza — home">
+		<BrandLockup />
 	</a>
 
 	<nav class="links" aria-label="Primary">
@@ -82,7 +82,7 @@
 <main id="main">{@render children()}</main>
 
 <footer class="foot">
-	<p class="wordmark-foot">EL' Mozza <em>English Quiz</em></p>
+	<p class="wordmark-foot"><BrandLockup height={26} /></p>
 	<nav class="foot-links" aria-label="Footer">
 		<a href="/demo">Demo lesson</a>
 		<a href="/register">Start free</a>
@@ -130,21 +130,6 @@
 		font-weight: 600;
 		letter-spacing: -0.02em;
 		white-space: nowrap;
-	}
-	.wordmark em,
-	.wordmark-foot em {
-		font-style: italic;
-		color: var(--color-accent);
-	}
-	.mark {
-		display: grid;
-		place-items: center;
-		width: 1.85rem;
-		height: 1.85rem;
-		border: 1px solid var(--color-accent);
-		border-radius: 50%;
-		color: var(--color-accent);
-		font-size: 0.85rem;
 	}
 
 	.links {
