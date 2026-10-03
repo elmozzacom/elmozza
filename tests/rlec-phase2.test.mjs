@@ -419,3 +419,14 @@ test('phase 2 routes exist; user routes require auth, link route uses the shared
 	for (const f of ['byo', 'db', 'learning', 'core', 'env']) assert.doesNotMatch(read(`src/lib/server/rlec/${f}.ts`), /fetch\(|openai|gemini\.|anthropic|AI\.run/i, f);
 	assert.match(read('src/lib/server/rlec/byo.ts'), /SessionReportSource = 'byo_paste' \| 'internal_tutor'/);
 });
+
+test('BYO package contains every owner-required section (3 Okt 2026 MVP checklist)', () => {
+	const db = migratedDb(root);
+	const s = scenarioRow(db, 'RLEC-PILOT-03');
+	const text = byo.buildByoPackage(s, { correction_style: 'beginner' }, [], { minutes: 10 });
+	for (const key of ['ROLE LOCK:', 'SCENARIO LOCK:', 'LEVEL LOCK:', 'GOAL:', 'TARGET PHRASES', 'KEY VOCABULARY', 'GRAMMAR TARGET', 'UNEXPECTED CHALLENGE', 'CORRECTION POLICY:', 'RETRY', 'REVIEW', '=== SESSION REPORT ===', '=== END ===']) {
+		assert.ok(text.includes(key), `missing ${key}`);
+	}
+	assert.match(text, /pattern = one of: PAST_TENSE_OMISSION/);
+	assert.doesNotMatch(text, /\bnull\b|undefined/);
+});

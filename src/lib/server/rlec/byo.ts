@@ -38,6 +38,8 @@ export type ByoScenario = {
 	goal: string | null;
 	context_brief: string | null;
 	useful_phrases_json: string | null;
+	expected_vocab_json?: string | null;
+	grammar_targets_json?: string | null;
 	unexpected_challenge: string | null;
 	correction_policy: string | null;
 };
@@ -115,6 +117,8 @@ export function buildByoPackage(scenario: ByoScenario, profile: ByoProfile, topE
 	const level = scenario.cefr ?? profile?.cefr_estimated ?? profile?.cefr_self ?? 'A2';
 	const style = (['beginner', 'intermediate', 'advanced'] as const).find((s) => s === scenario.correction_policy) ?? 'beginner';
 	const phrases = parseJsonList(scenario.useful_phrases_json).slice(0, 6);
+	const vocab = parseJsonList(scenario.expected_vocab_json ?? null).slice(0, 10).map((v) => clean(v, 60)).filter(Boolean);
+	const grammar = parseJsonList(scenario.grammar_targets_json ?? null).slice(0, 3).map((g) => clean(g, 120)).filter(Boolean);
 	const weak = topErrors
 		.slice(0, 3)
 		.map((e) => PATTERN_HINT[e.pattern_code] ?? e.label ?? null)
@@ -136,6 +140,8 @@ export function buildByoPackage(scenario: ByoScenario, profile: ByoProfile, topE
 		phrases.length
 			? `TARGET PHRASES I should use: ${phrases.map((p) => `"${p}"`).join(', ')}.`
 			: 'TARGET PHRASES I should use: polite questions and short confirmations.',
+		vocab.length ? `KEY VOCABULARY (use these naturally, help me if I miss them): ${vocab.join(', ')}.` : null,
+		grammar.length ? `GRAMMAR TARGET (create chances for me to use it): ${grammar.join('; ')}.` : null,
 		weak.length
 			? `MY KNOWN WEAK POINTS (force me to use them): ${weak.join(', ')}.`
 			: 'MY KNOWN WEAK POINTS (force me to use them): none recorded yet. Watch my mistakes and use them in REVIEW.',
@@ -146,12 +152,15 @@ export function buildByoPackage(scenario: ByoScenario, profile: ByoProfile, topE
 		'END: When I type END, output exactly this block:',
 		'=== SESSION REPORT ===',
 		'errors: [{pattern, wrong, fixed}]',
+		`(pattern = one of: ${Object.keys(PATTERN_HINT).join(', ')}, or OTHER)`,
 		'wins: ["things I did well, with my exact words"]',
 		'new_phrases: ["new phrases I used correctly"]',
 		'confidence_tip: ...',
 		'=== END ===',
 		`Start now with your first line as ${partnerName}.`
-	].join('\n');
+	]
+		.filter((l): l is string => l !== null)
+		.join('\n');
 }
 
 // ---------------------------------------------------------------- report parsing

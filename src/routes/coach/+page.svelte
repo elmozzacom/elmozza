@@ -39,6 +39,35 @@
 	let report = $state('');
 	let imported = $state<ImportResult | null>(null);
 
+	type Progress = {
+		recent_wins: { evidence_text: string | null; skill_label: string | null }[];
+		strengths: { skill_code: string; label: string; strength: number; evidence_count: number; trend_delta: number }[];
+		due_reviews: { total: number; items: { pattern_code: string; label?: string | null }[] };
+	};
+	let progress = $state<Progress | null>(null);
+
+	async function loadProgress() {
+		try {
+			const res = await fetch('/api/rlec/progress');
+			if (res.ok) progress = await res.json();
+		} catch {
+			/* progress panel is optional */
+		}
+	}
+	$effect(() => {
+		loadProgress();
+	});
+
+	function download() {
+		const name = (chosen?.title ?? 'paket').toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 50);
+		const url = URL.createObjectURL(new Blob([pkg], { type: 'text/plain;charset=utf-8' }));
+		const a = Object.assign(document.createElement('a'), { href: url, download: `elmozza-coach-${name}.txt` });
+		document.body.append(a);
+		a.click();
+		a.remove();
+		URL.revokeObjectURL(url);
+	}
+
 	const list = $derived.by(() => {
 		if (!door || door.soon) return [] as Scenario[];
 		const d = door;
@@ -104,6 +133,7 @@
 		problem = '';
 		try {
 			imported = await post('/api/rlec/byo/import', { scenario_id: chosen?.id ?? null, text: report });
+			loadProgress();
 		} catch (e) {
 			problem = (e as Error).message;
 		} finally {
@@ -122,6 +152,25 @@
 
 		{#if !door}
 			<h1>What do you need English for?</h1>
+			{#if progress && (progress.recent_wins.length || progress.due_reviews.items.length)}
+				<div class="progress" data-testid="rlec-progress">
+					<h3>Progres saya</h3>
+					{#if progress.recent_wins.length}
+						<p class="label-util">Yang sudah bagus</p>
+						<ul>{#each progress.recent_wins.slice(0, 3) as w}<li>✓ {w.evidence_text}</li>{/each}</ul>
+					{/if}
+					{#if progress.due_reviews.items.length}
+						<p class="label-util">Perlu diulang</p>
+						<ul>{#each progress.due_reviews.items.slice(0, 3) as d}<li>{d.label ?? d.pattern_code}</li>{/each}</ul>
+					{/if}
+					<p class="label-util">Kekuatan skill</p>
+					<ul class="bars">
+						{#each progress.strengths.filter((x) => x.evidence_count > 0).slice(0, 8) as k}
+							<li><span>{k.label}</span><i style={`width:${Math.round(k.strength * 100)}%`}></i></li>
+						{/each}
+					</ul>
+				</div>
+			{/if}
 			<div class="doors">
 				{#each DOORS as d}
 					<button type="button" class="door" onclick={() => pick(d)}>
@@ -195,7 +244,10 @@
 							<li>Latihan {minutes} menit. Ketik <code>RETRY</code> untuk mengulang, <code>REVIEW</code> untuk lihat kesalahan.</li>
 							<li>Selesai? Ketik <code>END</code>. Salin blok <code>SESSION REPORT</code> dan tempel di bawah.</li>
 						</ol>
-						<button type="button" class="button" onclick={copy}>{copied ? 'Tersalin ✓' : 'Salin paket'}</button>
+						<div class="row">
+							<button type="button" class="button" onclick={copy}>{copied ? 'Tersalin ✓' : 'Salin paket'}</button>
+							<button type="button" class="button ghost" onclick={download}>Unduh .txt</button>
+						</div>
 						<textarea id="pkg" class="pkg" readonly rows="10" value={pkg}></textarea>
 
 						<label for="rep"><strong>Tempel laporan sesi di sini</strong></label>
@@ -235,6 +287,48 @@
 </SiteShell>
 
 <style>
+	.row {
+		display: flex;
+		gap: 0.5rem;
+		flex-wrap: wrap;
+	}
+	.button.ghost {
+		background: transparent;
+		color: inherit;
+		border: 1px solid var(--color-rule);
+	}
+	.progress {
+		border: 1px solid var(--color-rule);
+		border-radius: 0.75rem;
+		padding: 0.85rem;
+		background: var(--color-paper-raised);
+	}
+	.progress h3 {
+		margin: 0 0 0.35rem;
+	}
+	.progress ul {
+		margin: 0 0 0.5rem;
+		padding-left: 1.1rem;
+	}
+	.bars {
+		list-style: none;
+		padding: 0 !important;
+		display: grid;
+		gap: 0.3rem;
+	}
+	.bars li {
+		display: grid;
+		grid-template-columns: 9rem 1fr;
+		align-items: center;
+		gap: 0.5rem;
+		font-size: 0.85rem;
+	}
+	.bars i {
+		display: block;
+		height: 0.45rem;
+		border-radius: 1rem;
+		background: var(--color-accent);
+	}
 	.coach {
 		max-width: 40rem;
 		margin: 0 auto;

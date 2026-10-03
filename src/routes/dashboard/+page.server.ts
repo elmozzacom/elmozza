@@ -2,6 +2,7 @@ import { requireUser } from '$lib/server/auth';
 import { dailyCoachLessons } from '$lib/content/daily-coach';
 import { buildJourney, jakartaDate, loadMercyDay, loadResponses } from '$lib/server/journey';
 import type { PageServerLoad } from './$types';
+import { coachAccessFor } from '$lib/server/rlec/env';
 
 /**
  * Four skills, derived from real progress rather than invented.
@@ -16,7 +17,7 @@ const SKILL_OF_DAY: Record<number, 'listening' | 'speaking' | 'reading' | 'writi
 
 const SKILL_TOTALS = { listening: 4, speaking: 4, reading: 3, writing: 3 } as const;
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals, url, platform }) => {
 	const user = requireUser(locals.user);
 	const db = locals.db;
 	const total_xp = user.total_xp;
@@ -110,6 +111,7 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	}
 
 	return {
+		coach: coachAccessFor(platform, locals.user).enabled,
 		user: { ...user, total_xp, current_streak: journey.streak },
 		completed,
 		doneToday,

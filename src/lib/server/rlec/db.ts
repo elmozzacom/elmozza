@@ -375,7 +375,7 @@ export async function learningProgress(db: D1Database, userId: number, now: Date
 // ---------------------------------------------------------------- BYO Level 0 (Phase 2)
 
 const BYO_COLUMNS = `s.id, s.title, s.place, s.situation, s.cefr, s.role_a, s.role_b, s.goal, s.context_brief,
-  s.useful_phrases_json, s.unexpected_challenge, s.correction_policy`;
+  s.useful_phrases_json, s.expected_vocab_json, s.grammar_targets_json, s.unexpected_challenge, s.correction_policy`;
 
 export async function byoPackage(db: D1Database, user: { id: number; username: string }, scenarioId: number, minutes: number, access: Access = NO_PILOT) {
 	const scenario = await db

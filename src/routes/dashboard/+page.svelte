@@ -32,6 +32,12 @@
 			</dl>
 		</header>
 
+		{#if data.coach}
+			<a class="coach-door" href="/coach" data-testid="dashboard-coach-door">
+				<span class="label-util">Baru · Real-Life English Coach</span>
+				<strong>Besok mau ngapain? Latihan English-nya sekarang.</strong>
+			</a>
+		{/if}
 		{#if data.notice === 'superadmin'}
 			<p class="nudge" role="status">That desk is reserved. Your own dashboard is here.</p>
 		{/if}
@@ -135,6 +141,17 @@
 </SiteShell>
 
 <style>
+	.coach-door {
+		display: grid;
+		gap: 0.2rem;
+		margin: 0 0 1rem;
+		padding: 0.85rem 1rem;
+		border: 1px solid var(--color-accent);
+		border-radius: 0.75rem;
+		background: var(--color-paper-raised);
+		color: inherit;
+		text-decoration: none;
+	}
 	.spread {
 		min-width: 0;
 		max-width: 72rem;
